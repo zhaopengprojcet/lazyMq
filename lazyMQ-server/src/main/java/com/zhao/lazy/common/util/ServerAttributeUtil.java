@@ -109,7 +109,7 @@ public class ServerAttributeUtil {
 	* add by zhao of 2019年5月24日
 	 */
 	public boolean addMessageToWaitSendQueueAndDBqueue(LazyMqBean message) {
-		if(waitSendDBQueue.flush(message)) {
+		if(pushWaitSendQueueAndDBqueue(message)) {
 			return addMessageToWaitSendQueue(message);
 		}
 		return false;
@@ -121,6 +121,14 @@ public class ServerAttributeUtil {
 	 */
 	public List<LazyMqBean> offWaitSendQueueAndDBqueue(int size) {
 		return waitSendDBQueue.popList(size);
+	}
+	
+	/**
+	 * 放入拷贝队列
+	* add by zhao of 2019年6月6日
+	 */
+	public boolean pushWaitSendQueueAndDBqueue(LazyMqBean message) {
+		return waitSendDBQueue.flush(message);
 	}
 	
 	/**

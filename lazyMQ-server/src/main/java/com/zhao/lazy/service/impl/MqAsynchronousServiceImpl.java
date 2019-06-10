@@ -1,5 +1,6 @@
 package com.zhao.lazy.service.impl;
 
+import java.rmi.ServerException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -40,19 +41,28 @@ public class MqAsynchronousServiceImpl implements MqService {
 			dbThread = new Thread() {
 				@Override
 				public void run() {
-					try {
+					
 						while(true) {
-							List<LazyMqBean> beans = serverAttributeUtil.offWaitSendQueueAndDBqueue(1500);
-							
-							if(!CollectionUtils.isEmpty(beans)) {
-								sqliteUtil.batchInsertLazyMqBean(beans);
+							List<LazyMqBean> beans = new ArrayList<LazyMqBean>();
+							try {
+								beans = serverAttributeUtil.offWaitSendQueueAndDBqueue(1500);
+								
+								if(!CollectionUtils.isEmpty(beans)) {
+									try {
+										sqliteUtil.batchInsertLazyMqBean(beans);
+									} catch (Exception e) {
+										for (LazyMqBean lazyMqBean : beans) {
+											serverAttributeUtil.pushWaitSendQueueAndDBqueue(lazyMqBean);
+										}
+										throw new ServerException("insert db sql error", e);
+									}
+								}
+								sleep(2000);
+							} catch (Exception e) {
+								e.printStackTrace();
+								LogUtil.error("mq inster db error", e);
 							}
-							sleep(2000);
 						}
-					} catch (Exception e) {
-						e.printStackTrace();
-						LogUtil.error("异步消息导入DB异常", e);
-					}
 				}
 			};
 		}
