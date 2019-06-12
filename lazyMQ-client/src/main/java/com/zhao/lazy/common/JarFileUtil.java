@@ -46,7 +46,6 @@ public class JarFileUtil {
 		File[] childFiles = file.listFiles();
 		for (File childFile : childFiles) {
 			if (childFile.isDirectory()) {
-				System.out.println(childFile.getName());
 				if (childPackage) {
 					myClassName.addAll(getClassNameByFile(childFile.getPath(), myClassName, childPackage));
 				}

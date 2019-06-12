@@ -1,5 +1,7 @@
 package com.zhao.lazy.regiest;
 
+import com.zhao.lazy.common.MessageType;
+
 /**
  * 请求消息体
  * add by zhao of 2019年5月23日
@@ -14,10 +16,10 @@ public class MessageBean {
 	private long sendTime;
 	private int sendType;//1单点 2广播
 	
-	public MessageBean(String body , String topicName , int sendType) {
+	public MessageBean(String body , String topicName , MessageType sendType) {
 		this.body = body;
 		this.topicName = topicName;
-		this.sendType = (sendType == 1 || sendType == 2) ? sendType : 1;
+		this.sendType = sendType == MessageType.GROUP ? 2 : 1;
 		this.sendTime = System.currentTimeMillis();
 	}
 

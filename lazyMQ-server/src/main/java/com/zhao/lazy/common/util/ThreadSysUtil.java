@@ -13,11 +13,11 @@ import java.util.concurrent.TimeUnit;
 public class ThreadSysUtil {
 
 	private static LinkedBlockingQueue<Runnable> lbq = new LinkedBlockingQueue<Runnable>();
-	private static ThreadPoolExecutor fixedThreadPool = new ThreadPoolExecutor(20, 200,
+	private static ThreadPoolExecutor fixedThreadPool = new ThreadPoolExecutor(20, 2000,
             0L, TimeUnit.MILLISECONDS,
             lbq);
 	
-	public static void execute(Thread thread) {
+	public static void execute(Runnable thread) {
 		fixedThreadPool.execute(thread);
 		LogUtil.info("新线程任务加入执行,当前任务数【"+(fixedThreadPool.getActiveCount())+"】,池内总线程数【"+fixedThreadPool.getPoolSize()+"】缓存队列长度【"+lbq.size()+"】");
 	}

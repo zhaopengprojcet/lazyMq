@@ -14,7 +14,7 @@ public class RegiestBean {
 
 	private String userName;
 	private String password;
-	private Map<String, String> regiestServices;
+	private Map<String, String> regiestServices; // topicGroup --> topic
 	private int port;
 	
 	public String getUserName() {

@@ -21,6 +21,7 @@ import com.zhao.lazy.common.result.ResultContext;
 import com.zhao.lazy.common.util.LogUtil;
 import com.zhao.lazy.common.util.ServerAttributeUtil;
 import com.zhao.lazy.common.util.SqliteUtil;
+import com.zhao.lazy.common.util.ThreadSysUtil;
 import com.zhao.lazy.service.MqService;
 
 
@@ -65,8 +66,8 @@ public class MqAsynchronousServiceImpl implements MqService {
 						}
 				}
 			};
+			ThreadSysUtil.execute(dbThread);
 		}
-		dbThread.start();
 	}
 	
 	

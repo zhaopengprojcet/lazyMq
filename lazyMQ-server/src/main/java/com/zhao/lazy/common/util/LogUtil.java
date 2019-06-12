@@ -11,7 +11,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class LogUtil {
 
-	private static Log logger = LogFactory.getLog(LogUtil.class);
+	private static Log logger = LogFactory.getLog("");
 	/**
 	 * 设置日志是否控制台打印
 	 */

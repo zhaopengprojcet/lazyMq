@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -71,6 +72,11 @@ public class RequestInterceptor implements HandlerInterceptor {
 					noPowersRest(response ,"拒绝服务【1093】");
 					return false;
 				}
+            	System.out.println("----------------->"+messageBean.getTopicName());
+            	if(!ServerAttributeUtil.hasTopic(messageBean.getTopicName())) {
+            		noPowersRest(response ,"拒绝服务【1096】");
+					return false;
+            	}
             	if(!ServerAttributeUtil.lazyRegiestKeyCheck(messageBean.getRegiestKey())) {
             		noPowersRest(response ,"拒绝服务【1095】");
 					return false;
@@ -96,10 +102,6 @@ public class RequestInterceptor implements HandlerInterceptor {
             	}
             	if(CollectionUtils.isEmpty(regiesteBean.getRegiestServices())) {
             		noPowersRest(response ,"拒绝服务【1083】");
-					return false;
-            	}
-            	if(StringUtils.isBlank(regiesteBean.getHost())) {
-            		noPowersRest(response ,"拒绝服务【1084】");
 					return false;
             	}
             	if(regiesteBean.getPort() < 1) {

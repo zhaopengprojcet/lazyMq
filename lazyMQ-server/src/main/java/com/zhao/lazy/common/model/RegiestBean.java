@@ -13,7 +13,7 @@ public class RegiestBean {
 
 	private String userName;
 	private String password;
-	private Map<String, String> regiestServices;
+	private Map<String, String> regiestServices; // topicGroup --> topic
 	private String host;
 	private int port;
 	

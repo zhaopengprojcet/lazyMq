@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -22,11 +23,16 @@ public class LazyServerContext {
 
 	private static ServerJetty server ;
 	private static Log log = LogFactory.getLog("LazyRegiest service load ");
-	private static Map<String, Method> listeners = new HashMap<String, Method>();
-	private static Map<String, String> regiests = new HashMap<String, String>();
+	private static ConcurrentHashMap<String, Method> listeners = new ConcurrentHashMap<String, Method>();
+	private static ConcurrentHashMap<String, String> regiests = new ConcurrentHashMap<String, String>();
 	private static String regiestToken = null;
 	private static String regiestKey = null;
 	private static String regiestHost = null;
+	
+	public static Method getMqMethod(String groupTopic) {
+		return listeners.get(groupTopic);
+	}
+	
 	/**
 	 * 注册客户端
 	* add by zhao of 2019年6月4日
@@ -55,7 +61,6 @@ public class LazyServerContext {
 		regiestHost = host;
 		regiestKey = key;
 		List<String> classNames = JarFileUtil.getClassName(packageName);
-		System.out.println(classNames.size());
 		if(classNames != null && classNames.size() > 0) {
 			for (String cn : classNames) {
 				try {
@@ -139,7 +144,7 @@ public class LazyServerContext {
 		if(server == null) {
 			server = new ServerJetty(port);
 		}
-		//server.start();
+		server.start();
 	}
 	
 	/**
