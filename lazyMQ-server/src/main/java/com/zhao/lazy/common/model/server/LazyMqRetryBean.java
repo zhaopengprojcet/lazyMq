@@ -1,5 +1,10 @@
 package com.zhao.lazy.common.model.server;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
+import com.alibaba.fastjson.JSON;
+import com.zhao.lazy.common.util.RetryTimeUtil;
+
 /**
  * MQ存储消息实体
  * add by zhao of 2019年5月23日
@@ -11,12 +16,29 @@ public class LazyMqRetryBean {
 	private String messageId;
 	private String body;
 	private String topicName;
+	private String groupName;
 	private long sendTime;
 	private long createTime;
 	private long lastSendTime;
 	private long nextSendTime;
 	private int sendCount;
 	private int sendType;
+	private String requestUrl;
+	
+	public LazyMqRetryBean loadMqBean(LazyMqBean message , String groupName , String requestUrl) {
+		this.body = message.getBody();
+		this.topicName = message.getTopicName();
+		this.groupName = groupName;
+		this.sendTime = message.getSendTime();
+		this.sendType = message.getSendType();
+		this.requestUrl = requestUrl;
+		this.messageId = DigestUtils.md5Hex(JSON.toJSONString(this));
+		this.createTime = System.currentTimeMillis();
+		this.lastSendTime = 0l;
+		this.nextSendTime = RetryTimeUtil.getNextTime(createTime, 0);
+		this.sendCount = 1;
+		return this;
+	}
 	
 	public String getMessageId() {
 		return messageId;
@@ -72,6 +94,18 @@ public class LazyMqRetryBean {
 	}
 	public void setSendType(int sendType) {
 		this.sendType = sendType;
+	}
+	public String getGroupName() {
+		return groupName;
+	}
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
+	}
+	public String getRequestUrl() {
+		return requestUrl;
+	}
+	public void setRequestUrl(String requestUrl) {
+		this.requestUrl = requestUrl;
 	}
 	@Override
 	public String toString() {

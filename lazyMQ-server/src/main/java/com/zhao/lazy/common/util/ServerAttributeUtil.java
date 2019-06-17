@@ -35,6 +35,7 @@ import com.zhao.lazy.common.model.server.LazyMqRetryBean;
 import com.zhao.lazy.common.result.ResultContext;
 import com.zhao.lazy.common.util.msg.SendMsgThread;
 import com.zhao.lazy.common.util.queue.ZFifoQueue;
+import com.zhao.lazy.common.util.queue.impl.CacheQueue;
 import com.zhao.lazy.common.util.queue.impl.CacheQueueForMq;
 
 /**
@@ -74,6 +75,11 @@ public class ServerAttributeUtil {
 	 */
 	private static ConcurrentHashMap<String ,ConcurrentHashMap<String, ZFifoQueue<LazyMqBean>>> waitSendQueue = new ConcurrentHashMap<String,  ConcurrentHashMap<String,ZFifoQueue<LazyMqBean>>>();
 	/**
+	 * 重试发送DB队列
+	 * queue
+	 */
+	private static ZFifoQueue<LazyMqRetryBean> retrySendDBQueue = new CacheQueueForMq<LazyMqRetryBean>();
+	/**
 	 * 重试发送队列
 	 */
 	private static ConcurrentHashMap<String ,ConcurrentHashMap<String, ZFifoQueue<LazyMqRetryBean>>> retrySendQueue = new ConcurrentHashMap<String ,ConcurrentHashMap<String, ZFifoQueue<LazyMqRetryBean>>>();
@@ -82,6 +88,10 @@ public class ServerAttributeUtil {
 	 */
 	private static ConcurrentHashMap<String ,ConcurrentHashMap<String, ZFifoQueue<LazyMqDiscardedBean>>> discardedQueue = new ConcurrentHashMap<String ,ConcurrentHashMap<String, ZFifoQueue<LazyMqDiscardedBean>>>();
 	
+	/**
+	 * 成功发送message   id队列
+	 */
+	private static ZFifoQueue<String> successQueue = new CacheQueue<String>();
 	/**
 	 * 客户端注册内容
 	 * topic->[groupName->[client]]
@@ -102,6 +112,16 @@ public class ServerAttributeUtil {
 		}
 	}
 	
+	
+	//-------------------------------------  等待队列
+	/**
+	 * 加入指定消息待发送队列
+	* add by zhao of 2019年5月24日
+	 */
+	public static boolean addMessageToWaitSendQueue(LazyMqBean message , String groupName) {
+		log.info("push mq to waitSendQueue \n" + JSON.toJSONString(message));
+		return waitSendQueue.get(message.getTopicName()).get(groupName).flush(message);
+	}
 	/**
 	 * 加入消息待发送队列
 	* add by zhao of 2019年5月24日
@@ -141,6 +161,10 @@ public class ServerAttributeUtil {
 		return waitSendQueue.get(topicName).get(group).size();
 	}
 	
+	/**
+	 * tipic 存在
+	* add by zhao of 2019年6月17日
+	 */
 	public static boolean hasTopic(String topic) {
 		return waitSendQueue.containsKey(topic);
 	}
@@ -159,6 +183,23 @@ public class ServerAttributeUtil {
 	 */
 	public boolean pushWaitSendQueueAndDBqueue(LazyMqBean message) {
 		return waitSendDBQueue.flush(message);
+	}
+	
+	//-------------------------------------  重发队列
+	/**
+	 * 放入重发队列
+	* add by zhao of 2019年6月17日
+	 */
+	public static boolean pushRetrySendQueue(LazyMqBean message , String groupName , String requestUrl) {
+		LazyMqRetryBean rb = new LazyMqRetryBean().loadMqBean(message, groupName, requestUrl);
+		retrySendDBQueue.flush(rb);
+		return retrySendQueue.get(message.getTopicName()).get(groupName).flush(rb);
+	}
+	
+	
+	//-------------------------------------  成功队列
+	public static boolean pushSuccessQueue(String messageId) {
+		return successQueue.flush(messageId);
 	}
 	
 	/**

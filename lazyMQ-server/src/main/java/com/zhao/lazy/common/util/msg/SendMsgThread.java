@@ -115,22 +115,32 @@ public class SendMsgThread {
 								Map<String, String> value = new HashMap<String, String>();
 								value.put("_mc", request.toJSONString());
 								for (LazyClientBean lazyClientBean : clients) {
-									JSONObject result = HttpUtil.post("http://" + lazyClientBean.getHost() + ":" + lazyClientBean.getPort() + "/lazy/call", value);
-									System.out.println("【"+groupName+"】【"+topicName+"】发送返回-------------》" + result.toJSONString());
+									try {
+										JSONObject result = HttpUtil.post("http://" + lazyClientBean.getHost() + ":" + lazyClientBean.getPort() + "/lazy/call", value);
+										if(result.containsKey("code") && result.getIntValue("code") == 1) { //成功 放入成功队列 等待从数据库中删除
+											ServerAttributeUtil.pushSuccessQueue(message.getMessageId());
+										}
+										else { //放入重试队列
+											ServerAttributeUtil.pushRetrySendQueue(message, groupName, "http://" + lazyClientBean.getHost() + ":" + lazyClientBean.getPort() + "/lazy/call");
+										}
+									} catch (Exception e) { //放入重试队列
+										ServerAttributeUtil.pushRetrySendQueue(message, groupName, "http://" + lazyClientBean.getHost() + ":" + lazyClientBean.getPort() + "/lazy/call");
+									}
 								}
 							}
-							else {
-								ServerAttributeUtil.addMessageToWaitSendQueue(message);
+							else { //无可处理客户端 放回待发送队列
+								ServerAttributeUtil.addMessageToWaitSendQueue(message , groupName);
 							}
 						}
-						else {
+						else { //无可处理消息 等待2000ms 再次尝试
 							Thread.sleep(2000);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
+						ServerAttributeUtil.addMessageToWaitSendQueue(message, groupName); //放回待发送队列
 					}
 				}
-				else {
+				else { // 队列无消息 等待2000ms 再次尝试
 					try {
 						Thread.sleep(2000);
 					} catch (InterruptedException e) {
@@ -141,6 +151,12 @@ public class SendMsgThread {
 		}
 	}
 	
+	/**
+	 * 重试队里处理线程
+	 * add by zhao of 2019年6月17日
+	 *
+	 * 功能描述：
+	 */
 	public class RetrySendQueueThread extends BaseThread  implements Runnable {
 
 		public RetrySendQueueThread() {}
@@ -159,6 +175,12 @@ public class SendMsgThread {
 		
 	}
 	
+	/**
+	 * 死信队列处理线程
+	 * add by zhao of 2019年6月17日
+	 *
+	 * 功能描述：
+	 */
 	public class DiscardedQueueThread extends BaseThread  implements Runnable {
 
 		public DiscardedQueueThread() {}
@@ -173,6 +195,30 @@ public class SendMsgThread {
 		
 		@Override
 		public void run() {
+		}
+		
+	}
+	
+	/**
+	 * 成功队列处理线程
+	 * add by zhao of 2019年6月17日
+	 *
+	 * 功能描述：
+	 */
+	public class SuccessQueueThread extends BaseThread  implements Runnable {
+
+		public SuccessQueueThread() { //与其他的分组相互不通，所有成功消息统一处理
+			topicName = "_success_topic";
+			groupName = "_success_group";
+			queueName = "_success_queue_name";
+			SendMsgThread.checkRunThreadKey(queueName);
+			runThreads.get(queueName).put(groupName + "_" + topicName, this);//加入监听
+			SendMsgThread.logRunThreadsInfo();
+		}
+		
+		@Override
+		public void run() {
+			
 		}
 		
 	}

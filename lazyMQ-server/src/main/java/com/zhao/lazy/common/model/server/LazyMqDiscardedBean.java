@@ -5,10 +5,12 @@ public class LazyMqDiscardedBean {
 	private String messageId;
 	private String body;
 	private String topicName;
+	private String groupName;
 	private long sendTime;
 	private long createTime;
 	private long inDisTime;
 	private int sendType;
+	private String requestUrl;
 	
 	public String getMessageId() {
 		return messageId;
@@ -52,6 +54,18 @@ public class LazyMqDiscardedBean {
 	}
 	public void setSendType(int sendType) {
 		this.sendType = sendType;
+	}
+	public String getGroupName() {
+		return groupName;
+	}
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
+	}
+	public String getRequestUrl() {
+		return requestUrl;
+	}
+	public void setRequestUrl(String requestUrl) {
+		this.requestUrl = requestUrl;
 	}
 	@Override
 	public String toString() {
