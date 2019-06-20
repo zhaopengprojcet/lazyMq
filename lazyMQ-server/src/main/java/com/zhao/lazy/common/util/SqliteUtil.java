@@ -51,6 +51,7 @@ public class SqliteUtil {
 	 * 加入待发送队列
 	* add by zhao of 2019年5月24日
 	 */
+	@Transactional
 	public int insertLazyMqBean(LazyMqBean messageBean) {
 		return updateJdbcTemplate.update(INSERT_LAZY_MQ, 
 					RandomUtils.getPrimaryKey() ,
@@ -94,12 +95,36 @@ public class SqliteUtil {
 		return 0;
 	}
 	
+	private final String BATCH_DELETE_LAZY_MQ = "delete from lazy_mq where messageId in ( ? ";
+	/**
+	 * 删除已成功消息
+	* add by zhao of 2019年6月20日
+	 */
+	@Transactional
+	public int deleteSuccessLazyMqBean(List<String> messageIds) {
+		if(!CollectionUtils.isEmpty(messageIds)) {
+			StringBuffer deleteSql = new StringBuffer(BATCH_DELETE_LAZY_MQ);
+			Object[] pras = new Object[messageIds.size()];
+			for(int i = 0 ; i < messageIds.size() ; i++) {
+				pras[i] = messageIds.get(i);
+				if(i < messageIds.size() - 2) {
+					deleteSql.append(" , ?");
+				}
+			}
+			deleteSql.append(" ) ");
+			int updatedCountArray = updateJdbcTemplate.update(deleteSql.toString(), pras);
+			return updatedCountArray; 
+		}
+		return 0;
+	}
+	
 	
 	private final String INSERT_LAZY_RETRY_MQ = "insert into lazy_retry_mq(id,messageId , body ,topicName ,sendTime ,createTime , lastSendTime , nextSendTime , sendCount,sendType) values(?,?,?,?,?,?,?,?,?)";
 	/**
 	 * 加入重试队列
 	* add by zhao of 2019年5月24日
 	 */
+	@Transactional
 	public int insertLazyMqRetryBean(LazyMqRetryBean messageBean) {
 		return updateJdbcTemplate.update(INSERT_LAZY_RETRY_MQ, 
 				RandomUtils.getPrimaryKey() ,
@@ -115,12 +140,35 @@ public class SqliteUtil {
 			);
 	}
 	
+	private final String BATCH_DELETE_RETRY_MQ = "delete from lazy_retry_mq where messageId in ( ? ";
+	/**
+	 * 删除已成功消息
+	* add by zhao of 2019年6月20日
+	 */
+	@Transactional
+	public int deleteSuccessRetryMqBean(List<String> messageIds) {
+		if(!CollectionUtils.isEmpty(messageIds)) {
+			StringBuffer deleteSql = new StringBuffer(BATCH_DELETE_RETRY_MQ);
+			Object[] pras = new Object[messageIds.size()];
+			for(int i = 0 ; i < messageIds.size() ; i++) {
+				pras[i] = messageIds.get(i);
+				if(i < messageIds.size() - 2) {
+					deleteSql.append(" , ?");
+				}
+			}
+			deleteSql.append(" ) ");
+			int updatedCountArray = updateJdbcTemplate.update(deleteSql.toString(), pras);
+			return updatedCountArray; 
+		}
+		return 0;
+	}
 	
 	private final String INSERT_LAZY_DISCARDED_MQ = "insert into lazy_mq(id,messageId , body ,topicName ,sendTime ,createTime , inDisTime,sendType) values(?,?,?,?,?,?,?)";
 	/**
 	 * 加入死信队列
 	* add by zhao of 2019年5月24日
 	 */
+	@Transactional
 	public int insertLazyMqDiscardedBean(LazyMqDiscardedBean messageBean) {
 		return updateJdbcTemplate.update(INSERT_LAZY_DISCARDED_MQ, 
 				RandomUtils.getPrimaryKey() ,
@@ -141,6 +189,7 @@ public class SqliteUtil {
 	 * 加入历史注册客户端
 	* add by zhao of 2019年5月30日
 	 */
+	@Transactional
 	public int insertLazyClientBean(RegiestBean clientBean , LazyClientBean lazy) {
 		return updateJdbcTemplate.update(INSERT_REGIEST_CLIENT, 
 				RandomUtils.getPrimaryKey() ,
@@ -159,6 +208,7 @@ public class SqliteUtil {
 	 * 新增账号
 	* add by zhao of 2019年6月3日
 	 */
+	@Transactional
 	public int insertRegiestUser(String username , String pass , String desc) {
 		return updateJdbcTemplate.update(INSERT_REGIEST_USER, 
 				RandomUtils.getPrimaryKey() ,

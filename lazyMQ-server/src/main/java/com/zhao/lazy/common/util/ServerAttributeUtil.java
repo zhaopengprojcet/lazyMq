@@ -91,7 +91,7 @@ public class ServerAttributeUtil {
 	/**
 	 * 成功发送message   id队列
 	 */
-	private static ZFifoQueue<String> successQueue = new CacheQueue<String>();
+	private static ConcurrentHashMap<String, CacheQueue<String>> successQueue = new ConcurrentHashMap<String ,CacheQueue<String>>();
 	/**
 	 * 客户端注册内容
 	 * topic->[groupName->[client]]
@@ -103,6 +103,7 @@ public class ServerAttributeUtil {
 	* add by zhao of 2019年5月23日
 	 */
 	public void init() {
+		//请求账户
 		List<Map<String, Object>> users = sqliteUtil.queryReqiestUser();
 		if(!CollectionUtils.isEmpty(users)) {
 			for (Map<String, Object> map : users) {
@@ -110,6 +111,14 @@ public class ServerAttributeUtil {
 			}
 			log.info("load lazy users ["+lazyUser+"]");
 		}
+		
+		//成功通道
+		successQueue.put("waitSendQueue", new CacheQueue<String>());
+		successQueue.put("retrySendQueue", new CacheQueue<String>());
+		
+		//成功通道处理线程
+		ThreadSysUtil.execute(new SendMsgThread().new SuccessQueueThread("waitSendQueue"));
+		ThreadSysUtil.execute(new SendMsgThread().new SuccessQueueThread("retrySendQueue"));
 	}
 	
 	
@@ -198,8 +207,16 @@ public class ServerAttributeUtil {
 	
 	
 	//-------------------------------------  成功队列
-	public static boolean pushSuccessQueue(String messageId) {
-		return successQueue.flush(messageId);
+	public static boolean pushSuccessQueue(String queueName , String messageId) {
+		return successQueue.get(queueName).flush(messageId);
+	}
+	
+	/**
+	 *  批量出队列
+	* add by zhao of 2019年6月17日
+	 */
+	public static List<String> popSuccessQueue(String queueName , int size) {
+		return successQueue.get(queueName).popList(size);
 	}
 	
 	/**

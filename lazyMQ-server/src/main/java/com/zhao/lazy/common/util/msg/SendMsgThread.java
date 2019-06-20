@@ -16,6 +16,8 @@ import com.zhao.lazy.common.model.server.LazyMqBean;
 import com.zhao.lazy.common.util.HttpUtil;
 import com.zhao.lazy.common.util.LogUtil;
 import com.zhao.lazy.common.util.ServerAttributeUtil;
+import com.zhao.lazy.common.util.SpringContentUtil;
+import com.zhao.lazy.common.util.SqliteUtil;
 
 public class SendMsgThread {
 
@@ -118,7 +120,7 @@ public class SendMsgThread {
 									try {
 										JSONObject result = HttpUtil.post("http://" + lazyClientBean.getHost() + ":" + lazyClientBean.getPort() + "/lazy/call", value);
 										if(result.containsKey("code") && result.getIntValue("code") == 1) { //成功 放入成功队列 等待从数据库中删除
-											ServerAttributeUtil.pushSuccessQueue(message.getMessageId());
+											ServerAttributeUtil.pushSuccessQueue(queueName , message.getMessageId());
 										}
 										else { //放入重试队列
 											ServerAttributeUtil.pushRetrySendQueue(message, groupName, "http://" + lazyClientBean.getHost() + ":" + lazyClientBean.getPort() + "/lazy/call");
@@ -208,17 +210,48 @@ public class SendMsgThread {
 	public class SuccessQueueThread extends BaseThread  implements Runnable {
 
 		public SuccessQueueThread() { //与其他的分组相互不通，所有成功消息统一处理
-			topicName = "_success_topic";
-			groupName = "_success_group";
-			queueName = "_success_queue_name";
+		}
+		
+		public SuccessQueueThread(String queueCanl) {
+			this.queueCanl = queueCanl;
+			this.queueName = "successQueue";
 			SendMsgThread.checkRunThreadKey(queueName);
-			runThreads.get(queueName).put(groupName + "_" + topicName, this);//加入监听
+			runThreads.get(queueName).put("_success_" + queueCanl, this);//加入监听
 			SendMsgThread.logRunThreadsInfo();
 		}
 		
+		private int popSize = 100;
+		private String queueCanl;
+		private SqliteUtil sqliteUtil;
+		
 		@Override
 		public void run() {
-			
+			this.sqliteUtil = (SqliteUtil) SpringContentUtil.getBean("sqliteUtil", SqliteUtil.class);
+			while(!exit) {
+				List<String> messageIds = ServerAttributeUtil.popSuccessQueue(queueCanl ,popSize);
+				if(!CollectionUtils.isEmpty(messageIds)) {
+					try {
+						switch (queueCanl) {
+						case "waitSendQueue":
+							this.sqliteUtil.deleteSuccessLazyMqBean(messageIds);
+							break;
+						case "retrySendQueue":
+							this.sqliteUtil.deleteSuccessRetryMqBean(messageIds);
+							break;
+						}
+					} catch (Exception e) {
+						LogUtil.error("delete success message error " , e);
+						for (String messageId : messageIds) {
+							ServerAttributeUtil.pushSuccessQueue(queueCanl, messageId);
+						}
+					}
+				}
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		
 	}
