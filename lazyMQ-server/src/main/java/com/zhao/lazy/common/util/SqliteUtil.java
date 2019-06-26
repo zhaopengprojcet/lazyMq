@@ -119,25 +119,37 @@ public class SqliteUtil {
 	}
 	
 	
-	private final String INSERT_LAZY_RETRY_MQ = "insert into lazy_retry_mq(id,messageId , body ,topicName ,sendTime ,createTime , lastSendTime , nextSendTime , sendCount,sendType) values(?,?,?,?,?,?,?,?,?)";
+	private final String BATCH_INSERT_LAZY_RETRY_MQ = "insert into lazy_retry_mq(id,messageId , body ,topicName ,sendTime ,createTime , lastSendTime , nextSendTime ,thisRetryTime, sendCount,sendType) values(?,?,?,?,?,?,?,?,?,?)";
 	/**
 	 * 加入重试队列
 	* add by zhao of 2019年5月24日
 	 */
 	@Transactional
-	public int insertLazyMqRetryBean(LazyMqRetryBean messageBean) {
-		return updateJdbcTemplate.update(INSERT_LAZY_RETRY_MQ, 
-				RandomUtils.getPrimaryKey() ,
-				messageBean.getMessageId() ,
-				messageBean.getBody() ,
-				messageBean.getTopicName() ,
-				messageBean.getSendTime() + "",
-				messageBean.getCreateTime() +"",
-				messageBean.getLastSendTime() + "",
-				messageBean.getNextSendTime() + "" ,
-				messageBean.getSendCount(),
-				messageBean.getSendType()
-			);
+	public int insertLazyMqRetryBean(List<LazyMqRetryBean> messageBeans) {
+		if(!CollectionUtils.isEmpty(messageBeans)) {
+			Object[] pras = new Object[messageBeans.size() * 11];
+			int index = 0;
+			for (LazyMqRetryBean lazyRetryBean : messageBeans) {
+				pras[index++] = RandomUtils.getPrimaryKey();
+				pras[index++] = lazyRetryBean.getMessageId() ;
+				pras[index++] = lazyRetryBean.getBody() ;
+				pras[index++] = lazyRetryBean.getTopicName() ;
+				pras[index++] = lazyRetryBean.getSendTime() + "";
+				pras[index++] = lazyRetryBean.getCreateTime() +"";
+				pras[index++] = lazyRetryBean.getLastSendTime() + "";
+				pras[index++] = lazyRetryBean.getNextSendTime() + "" ;
+				pras[index++] = lazyRetryBean.getThisRetryTime() + "" ;
+				pras[index++] = lazyRetryBean.getSendCount();
+				pras[index++] = lazyRetryBean.getSendType();
+			}
+			StringBuffer updateSql = new StringBuffer(BATCH_INSERT_LAZY_RETRY_MQ);
+			for(int i = 0 ; i < messageBeans.size() - 2 ; i++) {
+				updateSql.append(",(?,?,?,?,?,?,?)");
+			}
+			int updatedCountArray = updateJdbcTemplate.update(updateSql.toString(), pras);
+			return updatedCountArray; 
+		}
+		return 0;
 	}
 	
 	private final String BATCH_DELETE_RETRY_MQ = "delete from lazy_retry_mq where messageId in ( ? ";
@@ -163,7 +175,7 @@ public class SqliteUtil {
 		return 0;
 	}
 	
-	private final String INSERT_LAZY_DISCARDED_MQ = "insert into lazy_mq(id,messageId , body ,topicName ,sendTime ,createTime , inDisTime,sendType) values(?,?,?,?,?,?,?)";
+	private final String INSERT_LAZY_DISCARDED_MQ = "insert into lazy_mq(id,messageId , body ,topicName ,sendTime  , inDisTime,sendType) values(?,?,?,?,?,?)";
 	/**
 	 * 加入死信队列
 	* add by zhao of 2019年5月24日
@@ -176,7 +188,6 @@ public class SqliteUtil {
 				messageBean.getBody() ,
 				messageBean.getTopicName() ,
 				messageBean.getSendTime() + "",
-				messageBean.getCreateTime() +"" ,
 				messageBean.getInDisTime() + "",
 				messageBean.getSendType()
 			);

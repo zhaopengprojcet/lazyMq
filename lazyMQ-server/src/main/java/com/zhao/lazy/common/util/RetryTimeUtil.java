@@ -10,7 +10,7 @@ public class RetryTimeUtil {
 	/**
 	 * 时间间隔设置
 	 */
-	private static long[] TIME_RETRY = {
+	private static long[] TIME_RETRY = { // ms
 		5000 , 10000 , 30000 , 60000 , 120000 , 300000 , 600000 , 1200000 , 3600000 , 7200000
 	};
 	

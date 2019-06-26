@@ -114,6 +114,7 @@ public class SendMsgThread {
 								JSONObject request = new JSONObject();
 								request.put("_sc", message.getBody());
 								request.put("_gp", groupName);
+								request.put("_mg", message.getMessageId());
 								Map<String, String> value = new HashMap<String, String>();
 								value.put("_mc", request.toJSONString());
 								for (LazyClientBean lazyClientBean : clients) {

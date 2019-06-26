@@ -13,17 +13,18 @@ import com.zhao.lazy.common.util.RetryTimeUtil;
  */
 public class LazyMqRetryBean {
 
-	private String messageId;
-	private String body;
+	private String messageId;//消息唯一编号
+	private String body;//内容
 	private String topicName;
 	private String groupName;
-	private long sendTime;
-	private long createTime;
-	private long lastSendTime;
-	private long nextSendTime;
-	private int sendCount;
-	private int sendType;
-	private String requestUrl;
+	private long sendTime;//客户端发送时间
+	private long createTime;//重试队列接收时间
+	private long lastSendTime;//最后一次推送时间
+	private long nextSendTime;//下一次推送时间
+	private long thisRetryTime;//当前重试间隔时间
+	private int sendCount;//发送次数
+	private int sendType;//发送类型
+	private String requestUrl;//发送地址
 	
 	public LazyMqRetryBean loadMqBean(LazyMqBean message , String groupName , String requestUrl) {
 		this.body = message.getBody();
@@ -32,10 +33,11 @@ public class LazyMqRetryBean {
 		this.sendTime = message.getSendTime();
 		this.sendType = message.getSendType();
 		this.requestUrl = requestUrl;
-		this.messageId = DigestUtils.md5Hex(JSON.toJSONString(this));
+		this.messageId = message.getMessageId();
 		this.createTime = System.currentTimeMillis();
 		this.lastSendTime = 0l;
 		this.nextSendTime = RetryTimeUtil.getNextTime(createTime, 0);
+		this.thisRetryTime = 5000;
 		this.sendCount = 1;
 		return this;
 	}
@@ -88,7 +90,12 @@ public class LazyMqRetryBean {
 	public void setSendCount(int sendCount) {
 		this.sendCount = sendCount;
 	}
-	
+	public long getThisRetryTime() {
+		return thisRetryTime;
+	}
+	public void setThisRetryTime(long thisRetryTime) {
+		this.thisRetryTime = thisRetryTime;
+	}
 	public int getSendType() {
 		return sendType;
 	}

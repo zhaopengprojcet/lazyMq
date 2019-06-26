@@ -2,15 +2,14 @@ package com.zhao.lazy.common.model.server;
 
 public class LazyMqDiscardedBean {
 
-	private String messageId;
-	private String body;
+	private String messageId;//消息唯一编号
+	private String body;//消息体
 	private String topicName;
 	private String groupName;
-	private long sendTime;
-	private long createTime;
-	private long inDisTime;
-	private int sendType;
-	private String requestUrl;
+	private long sendTime;//客户端推送时间
+	private long inDisTime;//进入死信时间
+	private int sendType;//推送类型
+	private String requestUrl;//死信消息推送地址 ,同一个消息可能推送到多个服务，某一个服务推送进入死信后记录对应请求
 	
 	public String getMessageId() {
 		return messageId;
@@ -35,12 +34,6 @@ public class LazyMqDiscardedBean {
 	}
 	public void setSendTime(long sendTime) {
 		this.sendTime = sendTime;
-	}
-	public long getCreateTime() {
-		return createTime;
-	}
-	public void setCreateTime(long createTime) {
-		this.createTime = createTime;
 	}
 	public long getInDisTime() {
 		return inDisTime;

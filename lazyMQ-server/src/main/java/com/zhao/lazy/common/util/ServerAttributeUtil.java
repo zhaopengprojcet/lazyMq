@@ -1,33 +1,21 @@
 package com.zhao.lazy.common.util;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.codec.digest.Md5Crypt;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.tomcat.util.security.MD5Encoder;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.zhao.lazy.common.model.MessageBean;
 import com.zhao.lazy.common.model.server.LazyClientBean;
 import com.zhao.lazy.common.model.server.LazyMqBean;
 import com.zhao.lazy.common.model.server.LazyMqDiscardedBean;
@@ -44,7 +32,6 @@ import com.zhao.lazy.common.util.queue.impl.CacheQueueForMq;
  *
  * 功能描述：
  */
-@Component("serverAttributeUtil")
 public class ServerAttributeUtil {
 
 	private static Log log = LogFactory.getLog("");
@@ -52,8 +39,6 @@ public class ServerAttributeUtil {
 	public ServerAttributeUtil() {
 	}
 	
-	@Autowired
-	private SqliteUtil sqliteUtil;
 	/**
 	 * 请求的账号和密码
 	 */
@@ -102,7 +87,7 @@ public class ServerAttributeUtil {
 	 * 初始化
 	* add by zhao of 2019年5月23日
 	 */
-	public void init() {
+	public void init(SqliteUtil sqliteUtil) {
 		//请求账户
 		List<Map<String, Object>> users = sqliteUtil.queryReqiestUser();
 		if(!CollectionUtils.isEmpty(users)) {
@@ -147,7 +132,7 @@ public class ServerAttributeUtil {
 	 * 加入消息待发送队列 与拷贝DB 队列
 	* add by zhao of 2019年5月24日
 	 */
-	public boolean addMessageToWaitSendQueueAndDBqueue(LazyMqBean message) {
+	public static boolean addMessageToWaitSendQueueAndDBqueue(LazyMqBean message) {
 		if(addMessageToWaitSendQueue(message)) {
 			return pushWaitSendQueueAndDBqueue(message);
 		}
@@ -179,18 +164,18 @@ public class ServerAttributeUtil {
 	}
 	
 	/**
-	 * 取出拷贝队列
+	 * 取出等待拷贝队列
 	* add by zhao of 2019年6月6日
 	 */
-	public List<LazyMqBean> offWaitSendQueueAndDBqueue(int size) {
+	public static List<LazyMqBean> offWaitSendQueueAndDBqueue(int size) {
 		return waitSendDBQueue.popList(size);
 	}
 	
 	/**
-	 * 放入拷贝队列
+	 * 放入等待拷贝队列
 	* add by zhao of 2019年6月6日
 	 */
-	public boolean pushWaitSendQueueAndDBqueue(LazyMqBean message) {
+	public static boolean pushWaitSendQueueAndDBqueue(LazyMqBean message) {
 		return waitSendDBQueue.flush(message);
 	}
 	
@@ -205,6 +190,21 @@ public class ServerAttributeUtil {
 		return retrySendQueue.get(message.getTopicName()).get(groupName).flush(rb);
 	}
 	
+	/**
+	 * 放入重试拷贝队列
+	* add by zhao of 2019年6月6日
+	 */
+	public static boolean pushRetrySendQueueAndDBqueue(LazyMqRetryBean message) {
+		return retrySendDBQueue.flush(message);
+	}
+	
+	/**
+	 * 取出重发拷贝队列
+	* add by zhao of 2019年6月6日
+	 */
+	public static List<LazyMqRetryBean> offRetrySendQueueAndDBqueue(int size) {
+		return retrySendDBQueue.popList(size);
+	}
 	
 	//-------------------------------------  成功队列
 	public static boolean pushSuccessQueue(String queueName , String messageId) {
@@ -223,7 +223,7 @@ public class ServerAttributeUtil {
 	 * 加入注册客户端
 	* add by zhao of 2019年5月30日
 	 */
-	public ResultContext addRegiestToList(Map<String, String> topicGroup , LazyClientBean bean) {
+	public static ResultContext addRegiestToList(Map<String, String> topicGroup , LazyClientBean bean) {
 		if(topicGroup == null || topicGroup.isEmpty()) {
 			return new ResultContext(-1, "must set topic");
 		}

@@ -6,6 +6,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import com.zhao.lazy.common.util.ServerAttributeUtil;
+import com.zhao.lazy.common.util.SqliteUtil;
 import com.zhao.lazy.service.MqService;
 
 @Component
@@ -15,10 +16,12 @@ public class ServletContextLoadListener implements ApplicationRunner{
 	ServerAttributeUtil serverAttributeUtil;
 	@Autowired
 	MqService mqService;
+	@Autowired
+	SqliteUtil sqliteUtil;
 	
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
-		serverAttributeUtil.init();
+		serverAttributeUtil.init(sqliteUtil);
 		
 		mqService.startDBinit();
 	}

@@ -16,12 +16,12 @@ import com.zhao.lazy.common.util.RandomUtils;
  */
 public class LazyMqBean {
 
-	private String messageId;
-	private String body;
+	private String messageId;//消息唯一编号
+	private String body;//消息内容
 	private String topicName;
-	private long sendTime;
-	private int sendType;
-	private long createTime;
+	private long sendTime;//客户端发送时间
+	private int sendType;//推送类型
+	private long createTime;//服务器收取时间
 	
 	
 	public LazyMqBean() {

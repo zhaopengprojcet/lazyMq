@@ -15,12 +15,12 @@ import com.zhao.lazy.common.model.RegiestBean;
  */
 public class LazyClientBean {
 
-	private String regiestKey;
-	private String host;
-	private int port;
-	private String userName;
-	private String password;
-	private long regiestTime;
+	private String regiestKey; //注册key ,通过账户和密码验证后为此次注册生成的唯一key , 发送mq到服务器需要使用key作为身份标识
+	private String host;//域名   http://192.168.0.1
+	private int port;//端口号
+	private String userName;//账号
+	private String password;//密码
+	private long regiestTime;//注册时间 
 	
 	
 	public LazyClientBean() {
