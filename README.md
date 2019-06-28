@@ -4,7 +4,7 @@
 ### 功能需求  
 ##### 一.服务端  
 ###### 1.核心功能  
-		 服务端数据存储和结构设置  <font color="green"> ✔ </font>  
+		 服务端数据存储和结构设置<font color="green"> ✔ </font>  
 		 服务端存储内容读取和更新删除通用工具  <font color="green"> ✔ </font>  
 		 服务端同步队列底层实现  <font color="green"> ✔ </font>  
 		 服务端异步队列底层实现  <font color="green"> ✔ </font>  
