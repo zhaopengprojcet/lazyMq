@@ -56,7 +56,7 @@ public class BaseMqService {
 						while(true) {
 							List<LazyMqBean> beans = new ArrayList<LazyMqBean>();
 							try {
-								beans = ServerAttributeUtil.offWaitSendQueueAndDBqueue(1500);
+								beans = ServerAttributeUtil.offWaitSendQueueAndDBqueue(500);
 								
 								if(!CollectionUtils.isEmpty(beans)) {
 									try {
@@ -93,7 +93,7 @@ public class BaseMqService {
 						while(true) {
 							List<LazyMqRetryBean> beans = new ArrayList<LazyMqRetryBean>();
 							try {
-								beans = ServerAttributeUtil.offRetrySendQueueAndDBqueue(1500);
+								beans = ServerAttributeUtil.offRetrySendQueueAndDBqueue(500);
 								
 								if(!CollectionUtils.isEmpty(beans)) {
 									try {

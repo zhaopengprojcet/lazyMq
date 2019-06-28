@@ -22,9 +22,31 @@ public class RetryTimeUtil {
 		if(retryTime == 0) {
 			return thisTime + TIME_RETRY[0];
 		}
+		if(retryTime == TIME_RETRY[TIME_RETRY.length - 1]) {
+			return -1;
+		}
 		for(int i = 0 ; i < TIME_RETRY.length ; i++) {
 			if(TIME_RETRY[i] == retryTime && (i < TIME_RETRY.length - 1)) {
 				return thisTime + TIME_RETRY[i + 1];
+			}
+		}
+		return -1;
+	}
+	
+	/**
+	 * 获取下一次尝试间隔
+	* add by zhao of 2019年6月17日
+	 */
+	public static long getNextTimeOff(long retryTime) {
+		if(retryTime == 0) {
+			return TIME_RETRY[0];
+		}
+		if(retryTime == TIME_RETRY[TIME_RETRY.length - 1]) {
+			return -1;
+		}
+		for(int i = 0 ; i < TIME_RETRY.length ; i++) {
+			if(TIME_RETRY[i] == retryTime && (i < TIME_RETRY.length - 1)) {
+				return TIME_RETRY[i + 1];
 			}
 		}
 		return -1;

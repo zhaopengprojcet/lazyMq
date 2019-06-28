@@ -13,8 +13,10 @@ import org.springframework.util.CollectionUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.zhao.lazy.common.model.server.LazyClientBean;
 import com.zhao.lazy.common.model.server.LazyMqBean;
+import com.zhao.lazy.common.model.server.LazyMqRetryBean;
 import com.zhao.lazy.common.util.HttpUtil;
 import com.zhao.lazy.common.util.LogUtil;
+import com.zhao.lazy.common.util.RetryTimeUtil;
 import com.zhao.lazy.common.util.ServerAttributeUtil;
 import com.zhao.lazy.common.util.SpringContentUtil;
 import com.zhao.lazy.common.util.SqliteUtil;
@@ -172,8 +174,67 @@ public class SendMsgThread {
 			SendMsgThread.logRunThreadsInfo();
 		}
 		
+		/**
+		 增加发送次数 ， 更新下次发送时间 直接入缓存队列
+		为减少sqlIO ， 重试过程不进行数据更新
+		更改为进入死信时更新
+		如果服务中断，重启时直接从第一次尝试开始
+		* add by zhao of 2019年6月28日
+		 */
+		private void addMessageToRetry(LazyMqRetryBean message) {
+			message.setSendCount(message.getSendCount() + 1);
+			message.setNextSendTime(RetryTimeUtil.getNextTime(System.currentTimeMillis(), message.getThisRetryTime()));
+			message.setThisRetryTime(RetryTimeUtil.getNextTimeOff(message.getThisRetryTime()));
+			ServerAttributeUtil.pushRetrySendQueue(message);
+		}
+		
 		@Override
 		public void run() {
+			while(!exit) {
+				if(ServerAttributeUtil.topicGroupCache.containsKey(groupName) && ServerAttributeUtil.offRetrySendQueueSize(topicName , groupName) > 0) {
+					LazyMqRetryBean message = ServerAttributeUtil.offRetrySendQueue(topicName , groupName);
+					try {
+						if(message != null) {
+							if(message.getNextSendTime() == -1) { //超过重试次数，放入死信队列
+								
+								return;
+							}
+							JSONObject request = new JSONObject();
+							request.put("_sc", message.getBody());
+							request.put("_gp", groupName);
+							request.put("_mg", message.getMessageId());
+							Map<String, String> value = new HashMap<String, String>();
+							value.put("_mc", request.toJSONString());
+							try {
+								JSONObject result = HttpUtil.post(message.getRequestUrl(), value);
+								if(result.containsKey("code") && result.getIntValue("code") == 1) { //成功 放入成功队列 等待从数据库中删除
+									ServerAttributeUtil.pushSuccessQueue(queueName , message.getMessageId());
+								}
+								else { //再次放入重试队列
+									addMessageToRetry(message);
+								}
+							} catch (Exception e) { //再次放入重试队列
+								e.printStackTrace();
+								addMessageToRetry(message);
+							}
+						}
+						else { //无可处理消息 等待2000ms 再次尝试
+							Thread.sleep(2000);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+						//放回重发送队列,不进行发送增长
+						ServerAttributeUtil.pushRetrySendQueue(message);
+					}
+				}
+				else { // 队列无消息 等待2000ms 再次尝试
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 		
 	}

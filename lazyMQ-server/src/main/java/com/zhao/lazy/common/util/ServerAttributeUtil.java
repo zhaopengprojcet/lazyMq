@@ -180,6 +180,15 @@ public class ServerAttributeUtil {
 	}
 	
 	//-------------------------------------  重发队列
+	
+	/**
+	 *  重发 长度
+	* add by zhao of 2019年6月10日
+	 */
+	public static long offRetrySendQueueSize(String topicName , String group) {
+		return retrySendQueue.get(topicName).get(group).size();
+	}
+	
 	/**
 	 * 放入重发队列
 	* add by zhao of 2019年6月17日
@@ -191,11 +200,27 @@ public class ServerAttributeUtil {
 	}
 	
 	/**
+	 * 放入重发队列
+	* add by zhao of 2019年6月17日
+	 */
+	public static boolean pushRetrySendQueue(LazyMqRetryBean message) {
+		return retrySendQueue.get(message.getTopicName()).get(message.getGroupName()).flush(message);
+	}
+	
+	/**
 	 * 放入重试拷贝队列
 	* add by zhao of 2019年6月6日
 	 */
 	public static boolean pushRetrySendQueueAndDBqueue(LazyMqRetryBean message) {
 		return retrySendDBQueue.flush(message);
+	}
+	
+	/**
+	 * 重试 出队列
+	* add by zhao of 2019年6月10日
+	 */
+	public static LazyMqRetryBean offRetrySendQueue(String topicName , String group) {
+		return retrySendQueue.get(topicName).get(group).pop();
 	}
 	
 	/**

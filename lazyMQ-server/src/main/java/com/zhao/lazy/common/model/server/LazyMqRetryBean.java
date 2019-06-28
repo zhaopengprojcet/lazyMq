@@ -42,6 +42,22 @@ public class LazyMqRetryBean {
 		return this;
 	}
 	
+	public LazyMqRetryBean loadRetryBean(LazyMqRetryBean message) {
+		this.body = message.getBody();
+		this.topicName = message.getTopicName();
+		this.groupName = message.getGroupName();
+		this.sendTime = message.getSendTime();
+		this.sendType = message.getSendType();
+		this.requestUrl = message.getRequestUrl();
+		this.messageId = message.getMessageId();
+		this.createTime = message.getCreateTime();
+		this.lastSendTime = System.currentTimeMillis();
+		this.nextSendTime = RetryTimeUtil.getNextTime(this.lastSendTime, message.getThisRetryTime());
+		this.thisRetryTime = RetryTimeUtil.getNextTimeOff(message.getThisRetryTime());
+		this.sendCount = message.getSendCount() + 1;
+		return this;
+	}
+	
 	public String getMessageId() {
 		return messageId;
 	}
