@@ -11,6 +11,18 @@ public class LazyMqDiscardedBean {
 	private int sendType;//推送类型
 	private String requestUrl;//死信消息推送地址 ,同一个消息可能推送到多个服务，某一个服务推送进入死信后记录对应请求
 	
+	public LazyMqDiscardedBean loadMqBean(LazyMqRetryBean message) {
+		this.body = message.getBody();
+		this.topicName = message.getTopicName();
+		this.groupName = message.getGroupName();
+		this.sendTime = message.getSendTime();
+		this.sendType = message.getSendType();
+		this.requestUrl = message.getRequestUrl();
+		this.messageId = message.getMessageId();
+		this.inDisTime = System.currentTimeMillis();
+		return this;
+	}
+	
 	public String getMessageId() {
 		return messageId;
 	}

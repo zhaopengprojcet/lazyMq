@@ -1,6 +1,5 @@
 package com.zhao.lazy.common.util;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,9 +24,6 @@ public class SqliteUtil {
 	private JdbcTemplate updateJdbcTemplate;
 	@Autowired
 	private JdbcTemplate readJdbcTemplate;
-	
-	
-	
 	
 	private final String QUERY_MQ_EXIST = "select count(*) as _count from lazy_mq where messageId = ?";
 	
@@ -97,11 +93,11 @@ public class SqliteUtil {
 	
 	private final String BATCH_DELETE_LAZY_MQ = "delete from lazy_mq where messageId in ( ? ";
 	/**
-	 * 删除已成功消息
+	 * 删除待发送消息
 	* add by zhao of 2019年6月20日
 	 */
 	@Transactional
-	public int deleteSuccessLazyMqBean(List<String> messageIds) {
+	public int deleteLazyMqBean(List<String> messageIds) {
 		if(!CollectionUtils.isEmpty(messageIds)) {
 			StringBuffer deleteSql = new StringBuffer(BATCH_DELETE_LAZY_MQ);
 			Object[] pras = new Object[messageIds.size()];
@@ -154,11 +150,11 @@ public class SqliteUtil {
 	
 	private final String BATCH_DELETE_RETRY_MQ = "delete from lazy_retry_mq where messageId in ( ? ";
 	/**
-	 * 删除已成功消息
+	 * 删除重试消息
 	* add by zhao of 2019年6月20日
 	 */
 	@Transactional
-	public int deleteSuccessRetryMqBean(List<String> messageIds) {
+	public int deleteRetryMqBean(List<String> messageIds) {
 		if(!CollectionUtils.isEmpty(messageIds)) {
 			StringBuffer deleteSql = new StringBuffer(BATCH_DELETE_RETRY_MQ);
 			Object[] pras = new Object[messageIds.size()];
@@ -175,22 +171,35 @@ public class SqliteUtil {
 		return 0;
 	}
 	
-	private final String INSERT_LAZY_DISCARDED_MQ = "insert into lazy_mq(id,messageId , body ,topicName ,sendTime  , inDisTime,sendType) values(?,?,?,?,?,?)";
+	private final String INSERT_LAZY_DISCARDED_MQ = "insert into lazy_mq(id,messageId , body ,topicName ,groupName ,sendTime  , inDisTime,sendType ,requestUrl) values(?,?,?,?,?,?,?,?,?)";
 	/**
 	 * 加入死信队列
 	* add by zhao of 2019年5月24日
 	 */
 	@Transactional
-	public int insertLazyMqDiscardedBean(LazyMqDiscardedBean messageBean) {
-		return updateJdbcTemplate.update(INSERT_LAZY_DISCARDED_MQ, 
-				RandomUtils.getPrimaryKey() ,
-				messageBean.getMessageId() ,
-				messageBean.getBody() ,
-				messageBean.getTopicName() ,
-				messageBean.getSendTime() + "",
-				messageBean.getInDisTime() + "",
-				messageBean.getSendType()
-			);
+	public int insertLazyMqDiscardedBean(List<LazyMqDiscardedBean> messageBeans) {
+		if(!CollectionUtils.isEmpty(messageBeans)) {
+			Object[] pras = new Object[messageBeans.size() * 9];
+			int index = 0;
+			for (LazyMqDiscardedBean lazyMqBean : messageBeans) {
+				pras[index++] = RandomUtils.getPrimaryKey();
+				pras[index++] = lazyMqBean.getMessageId() ;
+				pras[index++] = lazyMqBean.getBody()  ;
+				pras[index++] = lazyMqBean.getTopicName() ;
+				pras[index++] = lazyMqBean.getGroupName() ;
+				pras[index++] = lazyMqBean.getSendTime() + "";
+				pras[index++] = lazyMqBean.getInDisTime() + "";
+				pras[index++] = lazyMqBean.getSendType();
+				pras[index++] = lazyMqBean.getRequestUrl();
+			}
+			StringBuffer updateSql = new StringBuffer(INSERT_LAZY_DISCARDED_MQ);
+			for(int i = 0 ; i < messageBeans.size() - 1 ; i++) {
+				updateSql.append(",(?,?,?,?,?,?,?)");
+			}
+			int updatedCountArray = updateJdbcTemplate.update(updateSql.toString(), pras);
+			return updatedCountArray; 
+		}
+		return 0;
 	}
 	
 	

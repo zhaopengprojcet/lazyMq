@@ -71,8 +71,7 @@ public class ServerAttributeUtil {
 	/**
 	 * 死信队列
 	 */
-	private static ConcurrentHashMap<String ,ConcurrentHashMap<String, ZFifoQueue<LazyMqDiscardedBean>>> discardedQueue = new ConcurrentHashMap<String ,ConcurrentHashMap<String, ZFifoQueue<LazyMqDiscardedBean>>>();
-	
+	private static ZFifoQueue<LazyMqDiscardedBean> discardedQueue = new CacheQueueForMq<LazyMqDiscardedBean>();
 	/**
 	 * 成功发送message   id队列
 	 */
@@ -244,6 +243,32 @@ public class ServerAttributeUtil {
 		return successQueue.get(queueName).popList(size);
 	}
 	
+	//-------------------------------------  死信队列
+	/**
+	 * 放入死信队列
+	* add by zhao of 2019年6月17日
+	 */
+	public static boolean pushDiscardedQueue(LazyMqRetryBean message) {
+		LazyMqDiscardedBean rb = new LazyMqDiscardedBean().loadMqBean(message);
+		return discardedQueue.flush(rb);
+	}
+	
+	/**
+	 * 放入死信队列
+	* add by zhao of 2019年6月6日
+	 */
+	public static boolean pushDiscardedQueue(LazyMqDiscardedBean message) {
+		return discardedQueue.flush(message);
+	}
+	
+	/**
+	 *  批量出队列
+	* add by zhao of 2019年6月17日
+	 */
+	public static List<LazyMqDiscardedBean> popDiscardedQueue(int size) {
+		return discardedQueue.popList(size);
+	}
+	
 	/**
 	 * 加入注册客户端
 	* add by zhao of 2019年5月30日
@@ -261,7 +286,7 @@ public class ServerAttributeUtil {
 				if(!topicGroupCache.containsKey(entry.getKey()) || !topicGroupCache.get(entry.getKey()).containsKey(entry.getValue())) {
 					ThreadSysUtil.execute(new SendMsgThread().new WaitSendQueueThread(entry.getKey() ,entry.getValue())); //开启等待、重试、死信队列处理线程
 					ThreadSysUtil.execute(new SendMsgThread().new RetrySendQueueThread(entry.getKey() ,entry.getValue()));
-					ThreadSysUtil.execute(new SendMsgThread().new DiscardedQueueThread(entry.getKey() ,entry.getValue()));
+					//ThreadSysUtil.execute(new SendMsgThread().new DiscardedQueueThread(entry.getKey() ,entry.getValue()));
 				}
 				if(!waitSendQueue.containsKey(entry.getValue())) {
 					ConcurrentHashMap<String, ZFifoQueue<LazyMqBean>> hash = new ConcurrentHashMap<String, ZFifoQueue<LazyMqBean>>();
@@ -283,6 +308,7 @@ public class ServerAttributeUtil {
 					hash.put(entry.getKey(), new CacheQueueForMq<LazyMqRetryBean>());
 					retrySendQueue.put(entry.getValue(), hash);
 				}
+				/*
 				if(!discardedQueue.containsKey(entry.getValue())) {
 					ConcurrentHashMap<String, ZFifoQueue<LazyMqDiscardedBean>> hash = new ConcurrentHashMap<String, ZFifoQueue<LazyMqDiscardedBean>>();
 					hash.put(entry.getKey(), new CacheQueueForMq<LazyMqDiscardedBean>());
@@ -293,6 +319,7 @@ public class ServerAttributeUtil {
 					hash.put(entry.getKey(), new CacheQueueForMq<LazyMqDiscardedBean>());
 					discardedQueue.put(entry.getValue(), hash);
 				}
+				*/
 			}
 			
 			lazyRegiestKey.add(bean.getRegiestKey());

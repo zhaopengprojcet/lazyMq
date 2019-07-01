@@ -37,7 +37,7 @@ public class LazyMqRetryBean {
 		this.createTime = System.currentTimeMillis();
 		this.lastSendTime = 0l;
 		this.nextSendTime = RetryTimeUtil.getNextTime(createTime, 0);
-		this.thisRetryTime = 5000;
+		this.thisRetryTime = RetryTimeUtil.getNextTimeOff(0);
 		this.sendCount = 1;
 		return this;
 	}

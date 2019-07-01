@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import com.zhao.lazy.common.model.server.LazyMqBean;
+import com.zhao.lazy.common.model.server.LazyMqDiscardedBean;
 import com.zhao.lazy.common.model.server.LazyMqRetryBean;
 import com.zhao.lazy.common.util.LogUtil;
 import com.zhao.lazy.common.util.ServerAttributeUtil;
@@ -25,13 +26,15 @@ public class BaseMqService {
 	private static Thread waitDbThread;
 	//重试队列
 	private static Thread retryThread;
-	
+	//死信队列
+	private static Thread discardedThread;
 	/**
 	 * 设置为同步时需要开启的任务
 	* add by zhao of 2019年6月26日
 	 */
 	public void loadSynchroThread() {
 		loadretryDbThread();
+		loadDiscardedDbThread();
 	}
 	
 	/**
@@ -41,6 +44,7 @@ public class BaseMqService {
 	public void loadAsynchronousThread() {
 		loadWaitDbThread();
 		loadretryDbThread();
+		loadDiscardedDbThread();
 	}
 	
 	/**
@@ -118,6 +122,43 @@ public class BaseMqService {
 	}
 	
 	/**
+	 * 启动死信队列入库线程
+	* add by zhao of 2019年6月26日
+	 */
+	private void loadDiscardedDbThread() {
+		if(discardedThread == null) {
+			discardedThread = new Thread() {
+				@Override
+				public void run() {
+					
+						while(true) {
+							List<LazyMqDiscardedBean> beans = new ArrayList<LazyMqDiscardedBean>();
+							try {
+								beans = ServerAttributeUtil.popDiscardedQueue(500);
+								
+								if(!CollectionUtils.isEmpty(beans)) {
+									try {
+										offRetryToDis(beans);
+									} catch (Exception e) {
+										for (LazyMqDiscardedBean lazyMqDiscardedBean : beans) {
+											ServerAttributeUtil.pushDiscardedQueue(lazyMqDiscardedBean);
+										}
+										throw new ServerException("insert discarded db sql error", e);
+									}
+								}
+								sleep(2000);
+							} catch (Exception e) {
+								e.printStackTrace();
+								LogUtil.error("mq inster discarded db error", e);
+							}
+						}
+				}
+			};
+			ThreadSysUtil.execute(retryThread);
+		}
+	}
+	
+	/**
 	 * 拷贝到重试
 	 * 删除等待队列表数据
 	* add by zhao of 2019年6月26日
@@ -129,7 +170,22 @@ public class BaseMqService {
 		int update = sqliteUtil.insertLazyMqRetryBean(beans);
 		if(update == beans.size()) {
 			List<String> messageIds = beans.stream().map(LazyMqRetryBean::getMessageId).collect(Collectors.toList());
-			sqliteUtil.deleteSuccessLazyMqBean(messageIds);
+			sqliteUtil.deleteLazyMqBean(messageIds);
+		}
+	}
+	
+	/**
+	 * 死信入库与删除重试
+	* add by zhao of 2019年6月26日
+	* 
+	* 声明函数包裹2个独立事务的更新函数为一个事务
+	 */
+	@Transactional
+	private void offRetryToDis(List<LazyMqDiscardedBean> beans) {
+		int update = sqliteUtil.insertLazyMqDiscardedBean(beans);
+		if(update == beans.size()) {
+			List<String> messageIds = beans.stream().map(LazyMqDiscardedBean::getMessageId).collect(Collectors.toList());
+			sqliteUtil.deleteRetryMqBean(messageIds);
 		}
 	}
 }
