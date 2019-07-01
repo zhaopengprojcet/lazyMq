@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.util.CollectionUtils;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.zhao.lazy.common.model.server.LazyClientBean;
 import com.zhao.lazy.common.model.server.LazyMqBean;
@@ -110,6 +111,7 @@ public class SendMsgThread {
 					LazyMqBean message = ServerAttributeUtil.offWaitSendQueue(topicName , groupName);
 					try {
 						if(message != null) {
+							LogUtil.info(String.format("%s-->%s-->%s", "waitSendQueue" ,message.getMessageId() , message.getBody()));
 							List<LazyClientBean> clients = getTopicGroupClients(groupName ,topicName, message.getSendType());
 							if(!CollectionUtils.isEmpty(clients)) {
 								JSONObject request = new JSONObject();
@@ -180,6 +182,7 @@ public class SendMsgThread {
 					LazyMqRetryBean message = ServerAttributeUtil.offRetrySendQueue(topicName , groupName);
 					try {
 						if(message != null) {
+							LogUtil.info(String.format("%s-->%s-->%d-->%s", "retrySendQueue" ,message.getMessageId() , message.getSendCount() , message.getBody()));
 							if(message.getNextSendTime() == -1) { //超过重试次数，放入死信队列
 								ServerAttributeUtil.pushDiscardedQueue(message);
 								return;
@@ -259,6 +262,7 @@ public class SendMsgThread {
 			while(!exit) {
 				List<String> messageIds = ServerAttributeUtil.popSuccessQueue(queueCanl ,popSize);
 				if(!CollectionUtils.isEmpty(messageIds)) {
+					LogUtil.info(String.format("%s-->%s-->%s", "successQueue" ,JSONArray.toJSONString(messageIds)));
 					try {
 						switch (queueCanl) {
 						case "waitSendQueue":
