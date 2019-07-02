@@ -15,13 +15,14 @@ import com.zhao.lazy.common.model.server.LazyMqDiscardedBean;
 import com.zhao.lazy.common.model.server.LazyMqRetryBean;
 import com.zhao.lazy.common.util.LogUtil;
 import com.zhao.lazy.common.util.ServerAttributeUtil;
-import com.zhao.lazy.common.util.SqliteUtil;
+import com.zhao.lazy.common.util.SqlUtil;
 import com.zhao.lazy.common.util.ThreadSysUtil;
+import com.zhao.lazy.common.util.sqlite.SqliteUtil;
 
 @Component
 public class BaseMqService {
 	@Autowired
-	protected SqliteUtil sqliteUtil;
+	protected SqlUtil sqlUtil;
 	//等待队列
 	private static Thread waitDbThread;
 	//重试队列
@@ -64,7 +65,7 @@ public class BaseMqService {
 								
 								if(!CollectionUtils.isEmpty(beans)) {
 									try {
-										sqliteUtil.batchInsertLazyMqBean(beans);
+										sqlUtil.batchInsertLazyMqBean(beans);
 									} catch (Exception e) {
 										for (LazyMqBean lazyMqBean : beans) {
 											ServerAttributeUtil.pushWaitSendQueueAndDBqueue(lazyMqBean);
@@ -167,10 +168,10 @@ public class BaseMqService {
 	 */
 	@Transactional
 	private void offWaitToRetry(List<LazyMqRetryBean> beans) {
-		int update = sqliteUtil.insertLazyMqRetryBean(beans);
+		int update = sqlUtil.insertLazyMqRetryBean(beans);
 		if(update == beans.size()) {
 			List<String> messageIds = beans.stream().map(LazyMqRetryBean::getMessageId).collect(Collectors.toList());
-			sqliteUtil.deleteLazyMqBean(messageIds);
+			sqlUtil.deleteLazyMqBean(messageIds);
 		}
 	}
 	
@@ -182,10 +183,10 @@ public class BaseMqService {
 	 */
 	@Transactional
 	private void offRetryToDis(List<LazyMqDiscardedBean> beans) {
-		int update = sqliteUtil.insertLazyMqDiscardedBean(beans);
+		int update = sqlUtil.insertLazyMqDiscardedBean(beans);
 		if(update == beans.size()) {
 			List<String> messageIds = beans.stream().map(LazyMqDiscardedBean::getMessageId).collect(Collectors.toList());
-			sqliteUtil.deleteRetryMqBean(messageIds);
+			sqlUtil.deleteRetryMqBean(messageIds);
 		}
 	}
 }

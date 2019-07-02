@@ -19,7 +19,8 @@ import com.zhao.lazy.common.util.HttpUtil;
 import com.zhao.lazy.common.util.LogUtil;
 import com.zhao.lazy.common.util.ServerAttributeUtil;
 import com.zhao.lazy.common.util.SpringContentUtil;
-import com.zhao.lazy.common.util.SqliteUtil;
+import com.zhao.lazy.common.util.SqlUtil;
+import com.zhao.lazy.common.util.sqlite.SqliteUtil;
 
 public class SendMsgThread {
 
@@ -254,11 +255,11 @@ public class SendMsgThread {
 		
 		private int popSize = 100;
 		private String queueCanl;
-		private SqliteUtil sqliteUtil;
+		private SqlUtil sqlUtil;
 		
 		@Override
 		public void run() {
-			this.sqliteUtil = (SqliteUtil) SpringContentUtil.getBean("sqliteUtil", SqliteUtil.class);
+			this.sqlUtil = (SqlUtil) SpringContentUtil.getBean("sqlUtil", SqliteUtil.class);
 			while(!exit) {
 				List<String> messageIds = ServerAttributeUtil.popSuccessQueue(queueCanl ,popSize);
 				if(!CollectionUtils.isEmpty(messageIds)) {
@@ -266,10 +267,10 @@ public class SendMsgThread {
 					try {
 						switch (queueCanl) {
 						case "waitSendQueue":
-							this.sqliteUtil.deleteLazyMqBean(messageIds);
+							this.sqlUtil.deleteLazyMqBean(messageIds);
 							break;
 						case "retrySendQueue":
-							this.sqliteUtil.deleteRetryMqBean(messageIds);
+							this.sqlUtil.deleteRetryMqBean(messageIds);
 							break;
 						}
 					} catch (Exception e) {

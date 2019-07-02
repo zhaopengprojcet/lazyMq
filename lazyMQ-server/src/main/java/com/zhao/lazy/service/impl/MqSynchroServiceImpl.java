@@ -32,7 +32,7 @@ public class MqSynchroServiceImpl extends BaseMqService implements MqService {
 	@Override
 	public ResultContext clientRegiest(RegiestBean regiest) {
 		LazyClientBean client = new LazyClientBean(regiest);
-		int insert = sqliteUtil.insertLazyClientBean(regiest, client);
+		int insert = sqlUtil.insertLazyClientBean(regiest, client);
 		if(insert > 0) {
 			return ServerAttributeUtil.addRegiestToList(regiest.getRegiestServices(), client);
 		}
@@ -43,7 +43,7 @@ public class MqSynchroServiceImpl extends BaseMqService implements MqService {
 	@Override
 	public ResultContext pushMessage(MessageBean message) {
 		LazyMqBean lmb = new LazyMqBean(message);
-		int insert = sqliteUtil.insertLazyMqBean(lmb);
+		int insert = sqlUtil.insertLazyMqBean(lmb);
 		if(insert > 0) {
 			return ServerAttributeUtil.addMessageToWaitSendQueue(lmb) ? new ResultContext(0, lmb.getMessageId()) : new ResultContext(-1, "duplication");
 		}

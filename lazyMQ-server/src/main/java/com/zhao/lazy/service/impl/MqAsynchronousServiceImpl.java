@@ -36,7 +36,7 @@ public class MqAsynchronousServiceImpl extends BaseMqService implements MqServic
 	@Override
 	public ResultContext clientRegiest(RegiestBean regiest) {
 		LazyClientBean client = new LazyClientBean(regiest);
-		int insert = sqliteUtil.insertLazyClientBean(regiest, client);
+		int insert = sqlUtil.insertLazyClientBean(regiest, client);
 		if(insert > 0) {
 			return ServerAttributeUtil.addRegiestToList(regiest.getRegiestServices(), client);
 		}

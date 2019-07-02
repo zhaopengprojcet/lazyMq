@@ -86,9 +86,9 @@ public class ServerAttributeUtil {
 	 * 初始化
 	* add by zhao of 2019年5月23日
 	 */
-	public void init(SqliteUtil sqliteUtil) {
+	public void init(SqlUtil sqlUtil) {
 		//请求账户
-		List<Map<String, Object>> users = sqliteUtil.queryReqiestUser();
+		List<Map<String, Object>> users = sqlUtil.queryReqiestUser();
 		if(!CollectionUtils.isEmpty(users)) {
 			for (Map<String, Object> map : users) {
 				lazyUser.put(map.get("username").toString(), map.get("password").toString());
