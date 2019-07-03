@@ -14,15 +14,13 @@ import com.zhao.lazy.service.MqService;
 public class ServletContextLoadListener implements ApplicationRunner{
 
 	@Autowired
-	ServerAttributeUtil serverAttributeUtil;
-	@Autowired
 	MqService mqService;
 	@Autowired
 	SqlUtil sqlUtil;
 	
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
-		serverAttributeUtil.init(sqlUtil);
+		ServerAttributeUtil.init(sqlUtil);
 		
 		mqService.startDBinit();
 	}

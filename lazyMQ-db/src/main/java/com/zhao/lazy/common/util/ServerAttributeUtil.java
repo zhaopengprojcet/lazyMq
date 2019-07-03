@@ -86,7 +86,7 @@ public class ServerAttributeUtil {
 	 * 初始化
 	* add by zhao of 2019年5月23日
 	 */
-	public void init(SqlUtil sqlUtil) {
+	public static void init(SqlUtil sqlUtil) {
 		//请求账户
 		List<Map<String, Object>> users = sqlUtil.queryReqiestUser();
 		if(!CollectionUtils.isEmpty(users)) {

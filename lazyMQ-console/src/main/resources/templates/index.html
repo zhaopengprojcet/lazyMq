@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>lazyMQ-console</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" type="text/css" th:href="@{/layui/css/layui.css}" />
+</head>
+<body class="layui-layout-body">
+	<div class="layui-layout layui-layout-admin">
+		<div class="layui-header">
+			<div class="layui-logo">lazyMQ</div>
+			<ul class="layui-nav layui-layout-left">
+				<li class="layui-nav-item"><a href="https://github.com/zhaopengprojcet/lazyMq/tree/master/lazyMQ-console" target="_blank">github</a></li>
+				<li class="layui-nav-item"><a href="">关于作者</a></li>
+			</ul>
+		</div>
+
+		<div class="layui-side layui-bg-black">
+			<div class="layui-side-scroll">
+				<ul class="layui-nav layui-nav-tree" lay-filter="test">
+					<li class="layui-nav-item"><a href=""><i class="layui-icon layui-icon-username"></i>&nbsp;&nbsp;注册账号</a></li>
+					<li class="layui-nav-item"><a href=""><i class="layui-icon layui-icon-chart-screen"></i>&nbsp;&nbsp;注册客户端</a></li>
+					<li class="layui-nav-item"><a href=""><i class="layui-icon layui-icon-loading-1"></i>&nbsp;&nbsp;等待队列</a></li>
+					<li class="layui-nav-item"><a href=""><i class="layui-icon layui-icon-loading"></i>&nbsp;&nbsp;重试队列</a></li>
+					<li class="layui-nav-item"><a href=""><i class="layui-icon layui-icon-fonts-del"></i>&nbsp;&nbsp;死信队列</a></li>
+					<li class="layui-nav-item"><a href=""><i class="layui-icon layui-icon-engine"></i>&nbsp;&nbsp;topic维护</a></li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="layui-body">
+			
+		</div>
+	</div>
+</body>
+<script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+<script>
+	layui.use('element', function() {
+		var element = layui.element;
+	});
+</script>
+</html>
