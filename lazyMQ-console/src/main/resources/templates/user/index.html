@@ -1,0 +1,60 @@
+
+<link rel="stylesheet" type="text/css" th:href="@{/js/easyui/themes/material/easyui.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/js/easyui/themes/icon.css}">
+<style>
+body{width: 100%;height: 100%;margin: 0px;padding: 0px;}
+</style>
+<table class="easyui-datagrid" id="user-center" style="width: 100%;height: 97%" 
+	data-options="
+		singleSelect:true,
+		url:'/console/user/list.html',
+		method:'get',
+		loadMsg:'load...',
+		pagination:true,
+		rownumbers:true,
+		striped:true,
+		toolbar:toolbar,
+		onLoadSuccess:dataLoadSuccess,
+		checkOnSelect:false,
+		selectOnCheck:false
+		"
+	>
+	<thead>
+		<tr>
+			<th data-options="field:'id',checkbox:true">ID</th>
+			<th data-options="field:'username'" width="35%">账号</th>
+			<th data-options="field:'userdesc'" width="45%">备注</th>
+			<th data-options="field:'data_update',formatter:data_update,align:'center'" width="15%">操作</th>
+		</tr>
+	</thead>
+</table>
+	
+<script type="text/javascript" th:src="@{/js/easyui/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/easyui/jquery.easyui.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/easyui/locale/easyui-lang-zh_CN.js}"></script>
+<script type="text/javascript">
+//操作按钮
+var toolbar = [{
+	text:'新增',
+	iconCls:'icon-add',
+	handler:function(){
+		data_update_func("");
+	}
+},{
+	text:'删除',
+	iconCls:'icon-remove',
+	handler:function(){alert('cut')}
+}
+];
+//行操作
+function data_update(val , row , index) {
+	return "<a href=\"javaScript:;\" onclick=\"javaScript:data_update_func('" + row.id + "');\" class=\"easyui-linkbutton update_link_button\" data-options=\"plain:true,iconCls:'icon-cut'\">修改</a>";
+}
+//数据加载后重新渲染行操作
+function dataLoadSuccess() {
+	$(".update_link_button").linkbutton();
+}
+function data_update_func(id) {
+	self.location.href = "/console/user/update.html?id="+id
+}
+</script>

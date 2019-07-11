@@ -10,7 +10,7 @@ import com.zhao.lazy.common.model.server.LazyMqDiscardedBean;
 import com.zhao.lazy.common.model.server.LazyMqRetryBean;
 
 public interface SqlUtil {
-
+	//---------------------- 基础服务必须---------------------------
 	/**
 	 * 查看消息是否重复
 	* add by zhao of 2019年5月30日
@@ -53,13 +53,25 @@ public interface SqlUtil {
 	 */
 	public int insertLazyClientBean(RegiestBean clientBean , LazyClientBean lazy);
 	/**
-	 * 新增账号
-	* add by zhao of 2019年6月3日
-	 */
-	public int insertRegiestUser(String username , String pass , String desc);
-	/**
 	 * 查询账号
 	* add by zhao of 2019年6月3日
 	 */
 	public List<Map<String, Object>> queryReqiestUser();
+	
+	
+	//---------------------- console服务必须---------------------------
+	public List<Map<String, Object>> queryReqiestUserPage(int page , int count);
+	
+	public int queryReqiestUserPageCount();
+	
+	public int queryUserConutByName(String name);
+	/**
+	 * 新增账号
+	* add by zhao of 2019年6月3日
+	 */
+	public int insertRegiestUser(String username , String pass , String desc);
+	
+	public int updateUser(String id ,String pass , String desc);
+	
+	public Map<String, Object> queryUserById(String id);
 }

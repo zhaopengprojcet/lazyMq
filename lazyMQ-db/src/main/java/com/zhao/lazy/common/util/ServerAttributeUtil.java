@@ -105,6 +105,14 @@ public class ServerAttributeUtil {
 		ThreadSysUtil.execute(new SendMsgThread().new SuccessQueueThread("retrySendQueue"));
 	}
 	
+	/**
+	 * 更新/添加账号
+	* add by zhao of 2019年7月10日
+	 */
+	public static void update(String username , String passowrd) {
+		lazyUser.remove(username);
+		lazyUser.put(username, DigestUtils.md5Hex(passowrd));
+	}
 	
 	//-------------------------------------  等待队列
 	/**
@@ -360,6 +368,7 @@ public class ServerAttributeUtil {
 			return false;
 		}
 		if(!lazyUser.get(user).equals(DigestUtils.md5Hex(password))) {
+			System.out.println(user + "   " + lazyUser.get(user) + "   " + password);
 			return false;
 		}
 		return true;

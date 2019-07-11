@@ -196,7 +196,7 @@ public class SendMsgThread {
 							value.put("_mc", request.toJSONString());
 							try {
 								JSONObject result = HttpUtil.post(message.getRequestUrl(), value);
-								if(result.containsKey("code") && result.getIntValue("code") == 1) { //成功 放入成功队列 等待从数据库中删除
+								if(result != null && result.containsKey("code") && result.getIntValue("code") == 1) { //成功 放入成功队列 等待从数据库中删除
 									ServerAttributeUtil.pushSuccessQueue(queueName , message.getMessageId());
 								}
 								else { //再次放入重试队列
@@ -263,7 +263,7 @@ public class SendMsgThread {
 			while(!exit) {
 				List<String> messageIds = ServerAttributeUtil.popSuccessQueue(queueCanl ,popSize);
 				if(!CollectionUtils.isEmpty(messageIds)) {
-					LogUtil.info(String.format("%s-->%s-->%s", "successQueue" ,JSONArray.toJSONString(messageIds)));
+					LogUtil.info(String.format("%s-->%s", "successQueue" ,JSONArray.toJSONString(messageIds)));
 					try {
 						switch (queueCanl) {
 						case "waitSendQueue":

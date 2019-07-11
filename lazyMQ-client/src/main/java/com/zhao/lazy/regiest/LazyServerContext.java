@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationContext;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -17,20 +18,25 @@ import com.zhao.lazy.client.LazyMethod;
 import com.zhao.lazy.common.AesUtil;
 import com.zhao.lazy.common.HttpUtil;
 import com.zhao.lazy.common.JarFileUtil;
+import com.zhao.lazy.common.SpringContentUtil;
 import com.zhao.lazy.server.ServerJetty;
 
 public class LazyServerContext {
 
 	private static ServerJetty server ;
 	private static Log log = LogFactory.getLog("LazyRegiest service load ");
-	private static ConcurrentHashMap<String, Method> listeners = new ConcurrentHashMap<String, Method>();
+	private static ConcurrentHashMap<String, ListenerBean> listeners = new ConcurrentHashMap<String, ListenerBean>();
 	private static ConcurrentHashMap<String, String> regiests = new ConcurrentHashMap<String, String>();
 	private static String regiestToken = null;
 	private static String regiestKey = null;
 	private static String regiestHost = null;
 	
-	public static Method getMqMethod(String groupTopic) {
+	public static ListenerBean getMqMethod(String groupTopic) {
 		return listeners.get(groupTopic);
+	}
+	
+	public static void setSpringApplication(ApplicationContext application) {
+		SpringContentUtil.setApplicationContext(application);
 	}
 	
 	/**
@@ -66,6 +72,7 @@ public class LazyServerContext {
 				try {
 					Class cl = Class.forName(cn);
 					if(cl.isAnnotationPresent(LazyBean.class)) {
+						String springBeanName = ((LazyBean)cl.getAnnotation(LazyBean.class)).springBeanName();
 						Method[] method = cl.getDeclaredMethods();
 						if(method != null && method.length > 0) {
 							for (Method mt : method) {
@@ -78,7 +85,7 @@ public class LazyServerContext {
 									}
 									else {
 										regiests.put(groupTopic, lm.topic());
-										listeners.put(groupTopic, mt);
+										listeners.put(groupTopic, new ListenerBean(cl, mt , springBeanName));
 									}
 								}
 							}

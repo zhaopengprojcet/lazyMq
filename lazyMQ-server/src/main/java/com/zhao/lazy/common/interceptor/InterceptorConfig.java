@@ -4,6 +4,7 @@ import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootConfiguration
@@ -18,9 +19,11 @@ public class InterceptorConfig implements WebMvcConfigurer {
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(getInterceptor())
 		.excludePathPatterns("/console/**")
-		.excludePathPatterns("/layui/**")
+		.excludePathPatterns("/js/**")
 		.addPathPatterns("/")
 		.addPathPatterns("/**")
 		;
 	}
+	
+	
 }

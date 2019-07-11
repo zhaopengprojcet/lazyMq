@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -111,7 +112,7 @@ public class SqliteUtil implements SqlUtil{
 			Object[] pras = new Object[messageIds.size()];
 			for(int i = 0 ; i < messageIds.size() ; i++) {
 				pras[i] = messageIds.get(i);
-				if(i < messageIds.size() - 2) {
+				if(i < messageIds.size() - 1) {
 					deleteSql.append(" , ?");
 				}
 			}
@@ -123,7 +124,7 @@ public class SqliteUtil implements SqlUtil{
 	}
 	
 	
-	private final String BATCH_INSERT_LAZY_RETRY_MQ = "insert into lazy_retry_mq(id,messageId , body ,topicName ,sendTime ,createTime , lastSendTime , nextSendTime ,thisRetryTime, sendCount,sendType) values(?,?,?,?,?,?,?,?,?,?)";
+	private final String BATCH_INSERT_LAZY_RETRY_MQ = "insert into lazy_retry_mq(id,messageId , body ,topicName ,sendTime ,createTime , lastSendTime , nextSendTime ,thisRetryTime, sendCount,sendType) values(?,?,?,?,?,?,?,?,?,?,?)";
 	/**
 	 * 加入重试队列
 	* add by zhao of 2019年5月24日
@@ -148,8 +149,8 @@ public class SqliteUtil implements SqlUtil{
 				pras[index++] = lazyRetryBean.getSendType();
 			}
 			StringBuffer updateSql = new StringBuffer(BATCH_INSERT_LAZY_RETRY_MQ);
-			for(int i = 0 ; i < messageBeans.size() - 2 ; i++) {
-				updateSql.append(",(?,?,?,?,?,?,?)");
+			for(int i = 0 ; i < messageBeans.size() - 1 ; i++) {
+				updateSql.append(",(?,?,?,?,?,?,?,?,?,?,?)");
 			}
 			int updatedCountArray = updateJdbcTemplate.update(updateSql.toString(), pras);
 			return updatedCountArray; 
@@ -181,7 +182,7 @@ public class SqliteUtil implements SqlUtil{
 		return 0;
 	}
 	
-	private final String INSERT_LAZY_DISCARDED_MQ = "insert into lazy_mq(id,messageId , body ,topicName ,groupName ,sendTime  , inDisTime,sendType ,requestUrl) values(?,?,?,?,?,?,?,?,?)";
+	private final String INSERT_LAZY_DISCARDED_MQ = "insert into lazy_discarded_mq(id,messageId , body ,topicName ,groupName ,sendTime  , inDisTime,sendType ,requestUrl) values(?,?,?,?,?,?,?,?,?)";
 	/**
 	 * 加入死信队列
 	* add by zhao of 2019年5月24日
@@ -234,6 +235,46 @@ public class SqliteUtil implements SqlUtil{
 			);
 	}
 	
+	
+	private final String QUERY_REGIEST_USER = "select * from lazy_user ";
+	
+	/**
+	 * 查询账号
+	* add by zhao of 2019年6月3日
+	 */
+	@Override
+	public List<Map<String, Object>> queryReqiestUser() {
+		return readJdbcTemplate.queryForList(QUERY_REGIEST_USER);
+	}
+
+	
+	
+	/** console服务必须 无引用则无需实现  **/
+	
+	
+	
+	private final String QUERY_REGIEST_USER_PAGE = "select id , username , userdesc from lazy_user limit ? ,? ";
+	
+	@Override
+	public List<Map<String, Object>> queryReqiestUserPage(int page, int count) {
+		return readJdbcTemplate.queryForList(QUERY_REGIEST_USER_PAGE, new Object[]{(page - 1) * count , count});
+	}
+
+	private final String QUERY_REGIEST_USER_PAGE_COUNT = "select count(*) from lazy_user ";
+	
+	@Override
+	public int queryReqiestUserPageCount() {
+		return readJdbcTemplate.queryForObject(QUERY_REGIEST_USER_PAGE_COUNT, Integer.class);
+	}
+
+	private final String QUERY_REGIEST_USER_NAME_COUNT = "select count(*) from lazy_user where username = ? ";
+	
+	@Override
+	public int queryUserConutByName(String name) {
+		return readJdbcTemplate.queryForObject(QUERY_REGIEST_USER_NAME_COUNT, new Object[] {name}, Integer.class);
+	}
+	
+
 	private final String INSERT_REGIEST_USER = "insert into lazy_user(id , username ,password ,userdesc) values(?,?,?,?)";
 	
 	/**
@@ -250,15 +291,31 @@ public class SqliteUtil implements SqlUtil{
 				desc
 			);
 	}
+
+	private final String UPDATE_REGIEST_USER = "update lazy_user set userdesc = ? ";
 	
-	private final String QUERY_REGIEST_USER = "select * from lazy_user ";
-	
-	/**
-	 * 查询账号
-	* add by zhao of 2019年6月3日
-	 */
 	@Override
-	public List<Map<String, Object>> queryReqiestUser() {
-		return readJdbcTemplate.queryForList(QUERY_REGIEST_USER);
+	@Transactional
+	public int updateUser(String id ,String pass, String desc) {
+		Object[] parames = null;
+		String updateSql = UPDATE_REGIEST_USER;
+		if(!StringUtils.isBlank(pass)) {
+			updateSql += " , password = ? ";
+			parames = new Object[] {desc , DigestUtils.md5Hex(pass) , id} ;
+		}
+		else {
+			parames = new Object[] {desc , id} ;
+		}
+		updateSql += " where id = ? ";
+		return updateJdbcTemplate.update(updateSql, parames);
 	}
+
+	private final String QUERY_REGIEST_USER_NAME = "select * from lazy_user where id = ? ";
+	
+	@Override
+	public Map<String, Object> queryUserById(String id) {
+		return readJdbcTemplate.queryForMap(QUERY_REGIEST_USER_NAME, new Object[] {id});
+	}
+	
+	
 }

@@ -5,7 +5,12 @@
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="stylesheet" type="text/css" th:href="@{/layui/css/layui.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/js/layui/css/layui.css}" />
+<style type="text/css">
+.layui-layout-admin .layui-body{bottom:0}
+.layui-tab-content{padding: 0px;}
+.layui-tab{margin: 0px;}
+</style>
 </head>
 <body class="layui-layout-body">
 	<div class="layui-layout layui-layout-admin">
@@ -20,25 +25,71 @@
 		<div class="layui-side layui-bg-black">
 			<div class="layui-side-scroll">
 				<ul class="layui-nav layui-nav-tree" lay-filter="test">
-					<li class="layui-nav-item"><a href=""><i class="layui-icon layui-icon-username"></i>&nbsp;&nbsp;注册账号</a></li>
-					<li class="layui-nav-item"><a href=""><i class="layui-icon layui-icon-chart-screen"></i>&nbsp;&nbsp;注册客户端</a></li>
-					<li class="layui-nav-item"><a href=""><i class="layui-icon layui-icon-loading-1"></i>&nbsp;&nbsp;等待队列</a></li>
-					<li class="layui-nav-item"><a href=""><i class="layui-icon layui-icon-loading"></i>&nbsp;&nbsp;重试队列</a></li>
-					<li class="layui-nav-item"><a href=""><i class="layui-icon layui-icon-fonts-del"></i>&nbsp;&nbsp;死信队列</a></li>
-					<li class="layui-nav-item"><a href=""><i class="layui-icon layui-icon-engine"></i>&nbsp;&nbsp;topic维护</a></li>
+					<li class="layui-nav-item" onclick="javaScript:addCenterBodyTab('已注册账号','/console/user/index.html','1');"><a href="javaScript:;"><i class="layui-icon layui-icon-username"></i>&nbsp;&nbsp;已注册账号</a></li>
+					<li class="layui-nav-item" id="client"><a href="javaScript:;"><i class="layui-icon layui-icon-chart-screen"></i>&nbsp;&nbsp;注册客户端</a></li>
+					<li class="layui-nav-item" id="wait"><a href="javaScript:;"><i class="layui-icon layui-icon-loading-1"></i>&nbsp;&nbsp;等待队列</a></li>
+					<li class="layui-nav-item" id="retry"><a href="javaScript:;"><i class="layui-icon layui-icon-loading"></i>&nbsp;&nbsp;重试队列</a></li>
+					<li class="layui-nav-item" id="discarded"><a href="javaScript:;"><i class="layui-icon layui-icon-fonts-del"></i>&nbsp;&nbsp;死信队列</a></li>
+					<li class="layui-nav-item" id="topic"><a href="javaScript:;"><i class="layui-icon layui-icon-engine"></i>&nbsp;&nbsp;topic维护</a></li>
 				</ul>
 			</div>
 		</div>
 
-		<div class="layui-body">
-			
+		<div class="layui-body" id="layui-body">
+			<div class="layui-tab" id="center-body" lay-filter="center-body" lay-allowClose="true">
+			  <ul class="layui-tab-title">
+			  	<li class="layui-this">主页</li>
+			  </ul>
+			  <div class="layui-tab-content" id="layui-tab-content" style="overflow: hidden;">
+			  	<div class="layui-tab-item layui-show">
+			  		<iframe frameborder="0" height="100%" width="100%" src="https://github.com/zhaopengprojcet/lazyMq"></iframe>
+			  	</div>
+			  </div>
+			</div>
 		</div>
 	</div>
 </body>
-<script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+<script type="text/javascript" th:src="@{/js/layui/layui.js}"></script>
 <script>
-	layui.use('element', function() {
-		var element = layui.element;
+	var element ;
+	var $ ;
+	layui.use(['element','jquery','layer'], function() {
+		element = layui.element;
+		$ = jQuery = layui.jquery;
+		FrameWH();
+		
+		$(window).resize(function () {
+            FrameWH();
+        });
+
+		FrameWH();
 	});
+	
+	function addCenterBodyTab(title , url , _id) {
+		element.tabAdd("center-body", {
+		  title: title
+		  ,content: "<iframe frameborder=\"0\" height=\"100%\" width=\"100%\" src=\""+url+"\"></iframe>"
+		  ,id: _id
+		});   
+		element.tabChange("center-body", _id);
+		FrameWH();
+	}
+	
+	function FrameWH() {
+        var h = $(window).height()-100;
+        $("iframe").css("height",h+"px");
+        $("#center-body").css("height",($("#layui-body").height() - 10) + "px");
+        $("#layui-tab-content").css("height",($("#center-body").height() - 45) + "px");
+    }
+	
+	function showSuccess(msg) {
+		layui.layer.msg(msg);
+	}
+	function showError(msg) {
+		layui.layer.open({
+		  title: '<span style="color:red">错误提示</span>'
+		  ,content: msg
+		}); 
+	}
 </script>
 </html>
