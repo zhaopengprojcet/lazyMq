@@ -1,7 +1,7 @@
 /**
- * EasyUI for jQuery 1.8.1
+ * EasyUI for jQuery 1.5.4.4
  * 
- * Copyright (c) 2009-2019 www.jeasyui.com. All rights reserved.
+ * Copyright (c) 2009-2018 www.jeasyui.com. All rights reserved.
  *
  * Licensed under the freeware license: http://www.jeasyui.com/license_freeware.php
  * To use it on other terms please contact us: info@jeasyui.com
@@ -21,9 +21,9 @@ var _8=$(_3).filebox("button");
 if(_8.length){
 $("<label class=\"filebox-label\" for=\""+_5.fileboxId+"\"></label>").appendTo(_8);
 if(_8.linkbutton("options").disabled){
-_6._propAttr("disabled",true);
+_6.attr("disabled","disabled");
 }else{
-_6._propAttr("disabled",false);
+_6.removeAttr("disabled");
 }
 }
 };

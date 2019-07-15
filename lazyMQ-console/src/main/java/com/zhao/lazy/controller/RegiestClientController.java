@@ -20,7 +20,7 @@ public class RegiestClientController {
 	@ResponseBody
 	@RequestMapping("/list.html")
 	public String list(@RequestParam(value="page" , defaultValue = "1" , required = false) int page ,
-					   @RequestParam(value="rows" , defaultValue = "1" , required = false) int limit) {
+					   @RequestParam(value="rows" , defaultValue = "10" , required = false) int limit) {
 		return new ResponseContext(sqlUtil.queryReqiestClientPageCount(), ServerAttributeUtil.checkClientIsOnLine(sqlUtil.queryReqiestClientPage(page, limit))).toJson();
 	}
 	

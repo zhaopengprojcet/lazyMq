@@ -1,7 +1,7 @@
 /**
- * EasyUI for jQuery 1.8.1
+ * EasyUI for jQuery 1.5.4.4
  * 
- * Copyright (c) 2009-2019 www.jeasyui.com. All rights reserved.
+ * Copyright (c) 2009-2018 www.jeasyui.com. All rights reserved.
  *
  * Licensed under the freeware license: http://www.jeasyui.com/license_freeware.php
  * To use it on other terms please contact us: info@jeasyui.com
@@ -497,7 +497,7 @@ $.fn.layout.parsePanelOptions=function(_76){
 var t=$(_76);
 return $.extend({},$.fn.panel.parseOptions(_76),$.parser.parseOptions(_76,["region",{split:"boolean",collpasedSize:"number",minWidth:"number",minHeight:"number",maxWidth:"number",maxHeight:"number"}]));
 };
-$.fn.layout.paneldefaults=$.extend({},$.fn.panel.defaults,{region:null,split:false,collapsedSize:32,expandMode:"float",hideExpandTool:false,hideCollapsedContent:true,collapsedContent:function(_77){
+$.fn.layout.paneldefaults=$.extend({},$.fn.panel.defaults,{region:null,split:false,collapsedSize:28,expandMode:"float",hideExpandTool:false,hideCollapsedContent:true,collapsedContent:function(_77){
 var p=$(this);
 var _78=p.panel("options");
 if(_78.region=="north"||_78.region=="south"){

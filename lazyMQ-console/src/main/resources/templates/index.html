@@ -6,8 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="stylesheet" type="text/css" th:href="@{/js/layui/css/layui.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/js/font4.7/css/font-awesome.min.css}">
 <style type="text/css">
-.layui-layout-admin .layui-body{bottom:0}
 .layui-tab-content{padding: 0px;}
 .layui-tab{margin: 0px;}
 </style>
@@ -17,7 +17,6 @@
 		<div class="layui-header">
 			<div class="layui-logo">lazyMQ</div>
 			<ul class="layui-nav layui-layout-left">
-				<li class="layui-nav-item"><a href="https://github.com/zhaopengprojcet/lazyMq/tree/master/lazyMQ-console" target="_blank">github</a></li>
 			</ul>
 		</div>
 
@@ -25,8 +24,8 @@
 			<div class="layui-side-scroll">
 				<ul class="layui-nav layui-nav-tree" lay-filter="test">
 					<li class="layui-nav-item" onclick="javaScript:addCenterBodyTab('已注册账号','/console/user/index.html','1');"><a href="javaScript:;"><i class="layui-icon layui-icon-username"></i>&nbsp;&nbsp;已注册账号</a></li>
-					<li class="layui-nav-item" onclick="javaScript:addCenterBodyTab('已注册客户端','/console/client/index.html','1');"><a href="javaScript:;"><i class="layui-icon layui-icon-chart-screen"></i>&nbsp;&nbsp;注册客户端</a></li>
-					<li class="layui-nav-item" id="wait"><a href="javaScript:;"><i class="layui-icon layui-icon-loading-1"></i>&nbsp;&nbsp;等待队列</a></li>
+					<li class="layui-nav-item" onclick="javaScript:addCenterBodyTab('已注册客户端','/console/client/index.html','2');"><a href="javaScript:;"><i class="layui-icon layui-icon-chart-screen"></i>&nbsp;&nbsp;注册客户端</a></li>
+					<li class="layui-nav-item" onclick="javaScript:addCenterBodyTab('待发送消息列表','/console/mq/wait/index.html','3');"><a href="javaScript:;"><i class="layui-icon layui-icon-loading-1"></i>&nbsp;&nbsp;等待队列</a></li>
 					<li class="layui-nav-item" id="retry"><a href="javaScript:;"><i class="layui-icon layui-icon-loading"></i>&nbsp;&nbsp;重试队列</a></li>
 					<li class="layui-nav-item" id="discarded"><a href="javaScript:;"><i class="layui-icon layui-icon-fonts-del"></i>&nbsp;&nbsp;死信队列</a></li>
 					<li class="layui-nav-item" id="topic"><a href="javaScript:;"><i class="layui-icon layui-icon-engine"></i>&nbsp;&nbsp;topic维护</a></li>
@@ -46,6 +45,12 @@
 			  </div>
 			</div>
 		</div>
+		
+		<div class="layui-footer" align="center" style="font-size: 12px;font-weight: bold;">
+		    lazyMQ-colsole.version-0.0.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		    <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+			<a href="https://github.com/zhaopengprojcet/lazyMq/tree/master/lazyMQ-console" target="_blank">To&nbsp;GitHub</a>
+		  </div>
 	</div>
 </body>
 <script type="text/javascript" th:src="@{/js/layui/layui.js}"></script>
@@ -65,17 +70,20 @@
 	});
 	
 	function addCenterBodyTab(title , url , _id) {
-		element.tabAdd("center-body", {
-		  title: title
-		  ,content: "<iframe frameborder=\"0\" height=\"100%\" width=\"100%\" src=\""+url+"\"></iframe>"
-		  ,id: _id
-		});   
+		var exist=$("li[lay-id='"+_id+"']").length > 0;
+		if(!exist)  {
+			element.tabAdd("center-body", {
+				  title: title
+				  ,content: "<iframe frameborder=\"0\" height=\"100%\" width=\"100%\" src=\""+url+"\"></iframe>"
+				  ,id: _id
+				}); 
+		}
 		element.tabChange("center-body", _id);
 		FrameWH();
 	}
 	
 	function FrameWH() {
-        var h = $(window).height()-100;
+        var h = $(window).height()-100 -44;
         $("iframe").css("height",h+"px");
         $("#center-body").css("height",$("#layui-body").height() + "px");
         $("#layui-tab-content").css("height",($("#center-body").height() - 40) + "px");

@@ -39,4 +39,10 @@ public interface ZFifoQueue<E> {
 	 * @return
 	 */
 	boolean clean();
+	
+	/**
+	 * 取全部，非出队
+	* add by zhao of 2019年7月15日
+	 */
+	List<Object> readAll();
 }

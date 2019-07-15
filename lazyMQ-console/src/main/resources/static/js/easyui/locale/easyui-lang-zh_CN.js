@@ -1,10 +1,7 @@
 if ($.fn.pagination){
 	$.fn.pagination.defaults.beforePageText = '第';
 	$.fn.pagination.defaults.afterPageText = '页&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;共{pages}页';
-	$.fn.pagination.defaults.displayMsg = 
-		'lazyMQ-colsole.version-0.0.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + 
-		'<a href="https://github.com/zhaopengprojcet/lazyMq/tree/master/lazyMQ-console" target="_blank">github</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+
-		'显示第{from}-{to}条数据,共{total}记录';
+	$.fn.pagination.defaults.displayMsg = '显示第{from}-{to}条数据,共{total}记录';
 }
 if ($.fn.datagrid){
 	$.fn.datagrid.defaults.loadMsg = '正在处理，请稍待。。。';

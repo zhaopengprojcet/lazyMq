@@ -115,5 +115,15 @@ public class CacheQueue<E> implements ZFifoQueue<E>{
 		}
 	}
 
+	@Override
+	public List<Object> readAll() {
+		synchronized (datas) {
+			if(datas == null || datas.length < 1) return null;
+			Object[] outDatas = new Object[datas.length];
+			System.arraycopy(datas, 0, outDatas, 0, datas.length);
+			return new ArrayList<Object>(Arrays.asList(outDatas));
+		}
+	}
+
 	
 }

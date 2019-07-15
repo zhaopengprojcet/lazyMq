@@ -16,6 +16,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.zhao.lazy.common.model.server.LazyClientBean;
 import com.zhao.lazy.common.model.server.LazyMqBean;
 import com.zhao.lazy.common.model.server.LazyMqDiscardedBean;
@@ -191,6 +193,29 @@ public class ServerAttributeUtil {
 	 */
 	public static boolean pushWaitSendQueueAndDBqueue(LazyMqBean message) {
 		return waitSendDBQueue.flush(message);
+	}
+	
+	/**
+	 * 待发送队列结构查询
+	* add by zhao of 2019年7月15日
+	 */
+	public static JSONArray waitSednQueueTreeGrid() {
+		JSONArray array = new JSONArray();
+		for(Map.Entry<String ,ConcurrentHashMap<String, ZFifoQueue<LazyMqBean>>> topic : waitSendQueue.entrySet()) {
+			JSONObject topicData = new JSONObject();
+			topicData.put("text", topic.getKey());
+			topicData.put("id", topic.getKey());
+			JSONArray groups = new JSONArray();
+			for(Map.Entry<String, ZFifoQueue<LazyMqBean>> group : topic.getValue().entrySet()) {
+				JSONObject groupData = new JSONObject();
+				groupData.put("text", group.getKey());
+				groupData.put("id", group.getKey());
+				groups.add(groupData);
+			}
+			topicData.put("children", groups);
+			array.add(topicData);
+		}
+		return array;
 	}
 	
 	//-------------------------------------  重发队列

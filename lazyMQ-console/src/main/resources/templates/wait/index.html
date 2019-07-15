@@ -1,0 +1,47 @@
+
+<link rel="stylesheet" type="text/css" th:href="@{/js/easyui/themes/material/easyui.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/js/easyui/themes/icon.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/js/font4.7/css/font-awesome.min.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/js/sys/table.css}">
+<table class="easyui-treegrid" id="wait-center" style="width: 100%;height: 100%" 
+	data-options="
+		singleSelect:true,
+		url:'/console/mq/wait/list.html',
+		idField:'id',
+		treeField:'text',
+		method:'get',
+		loadMsg:'load...',
+		striped:true,
+		onLoadSuccess:dataLoadSuccess
+		"
+	>
+	<thead>
+		<tr>
+			<th data-options="field:'text'" width="80%">TOPIC/GROUP</th>
+			<th data-options="field:'data_update',formatter:data_update,align:'center'" width="20%">操作</th>
+		</tr>
+	</thead>
+</table>
+	
+<script type="text/javascript" th:src="@{/js/easyui/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/easyui/jquery.easyui.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/easyui/locale/easyui-lang-zh_CN.js}"></script>
+<script type="text/javascript">
+//操作按钮
+var toolbar = [];
+function data_append(val , row , index) {}
+function tableReold() {
+	$('#wait-center').treegrid('reload');
+}
+//行操作
+function data_update(val , row , index) {
+	if(row.children) return "";
+	return "<a href=\"javaScript:;\" onclick=\"javaScript:data_update_func('" + row.id + "');\" class=\"easyui-linkbutton update_link_button\" data-options=\"plain:true\"><i class=\"fa fa-eye\" aria-hidden=\"true\"></i>&nbsp;&nbsp;查看</a>";
+}
+//数据加载后重新渲染行操作
+function dataLoadSuccess() {
+	$(".update_link_button").linkbutton();
+}
+function data_update_func(id) {}
+function data_time(val , row , index) {}
+</script>

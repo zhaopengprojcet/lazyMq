@@ -1,7 +1,7 @@
 /**
- * EasyUI for jQuery 1.8.1
+ * EasyUI for jQuery 1.5.4.4
  * 
- * Copyright (c) 2009-2019 www.jeasyui.com. All rights reserved.
+ * Copyright (c) 2009-2018 www.jeasyui.com. All rights reserved.
  *
  * Licensed under the freeware license: http://www.jeasyui.com/license_freeware.php
  * To use it on other terms please contact us: info@jeasyui.com
@@ -256,7 +256,7 @@ if(_45){
 $.extend(_45.options,_43);
 }else{
 _45=$.data(this,"slider",{options:$.extend({},$.fn.slider.defaults,$.fn.slider.parseOptions(this),_43),slider:_1(this)});
-$(this)._propAttr("disabled",false);
+$(this).removeAttr("disabled");
 }
 var _46=_45.options;
 _46.min=parseFloat(_46.min);

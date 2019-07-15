@@ -1,7 +1,7 @@
 /**
- * EasyUI for jQuery 1.8.1
+ * EasyUI for jQuery 1.5.4.4
  * 
- * Copyright (c) 2009-2019 www.jeasyui.com. All rights reserved.
+ * Copyright (c) 2009-2018 www.jeasyui.com. All rights reserved.
  *
  * Licensed under the freeware license: http://www.jeasyui.com/license_freeware.php
  * To use it on other terms please contact us: info@jeasyui.com
@@ -170,7 +170,7 @@ $(this).datebox("setValue",_2e.originalValue);
 $.fn.datebox.parseOptions=function(_2f){
 return $.extend({},$.fn.combo.parseOptions(_2f),$.parser.parseOptions(_2f,["sharedCalendar"]));
 };
-$.fn.datebox.defaults=$.extend({},$.fn.combo.defaults,{panelWidth:250,panelHeight:"auto",sharedCalendar:null,keyHandler:{up:function(e){
+$.fn.datebox.defaults=$.extend({},$.fn.combo.defaults,{panelWidth:180,panelHeight:"auto",sharedCalendar:null,keyHandler:{up:function(e){
 },down:function(e){
 },left:function(e){
 },right:function(e){
@@ -197,20 +197,19 @@ var m=_36.getMonth()+1;
 var d=_36.getDate();
 return (m<10?("0"+m):m)+"/"+(d<10?("0"+d):d)+"/"+y;
 },parser:function(s){
-var _37=$(this).datebox("calendar").calendar("options");
 if(!s){
-return new _37.Date();
+return new Date();
 }
 var ss=s.split("/");
 var m=parseInt(ss[0],10);
 var d=parseInt(ss[1],10);
 var y=parseInt(ss[2],10);
 if(!isNaN(y)&&!isNaN(m)&&!isNaN(d)){
-return new _37.Date(y,m-1,d);
+return new Date(y,m-1,d);
 }else{
-return new _37.Date();
+return new Date();
 }
-},onSelect:function(_38){
+},onSelect:function(_37){
 }});
 })(jQuery);
 
