@@ -47,8 +47,7 @@ public class ServerAttributeUtil {
 	/**
 	 * 已注册key
 	 */
-	private static Set<String> lazyRegiestKey = Collections.newSetFromMap(new ConcurrentHashMap<String , Boolean>());
-	
+	private static ConcurrentHashMap<String , Long> lazyRegiestKey = new ConcurrentHashMap<String, Long>();
 	/**
 	 * 等待发送DB队列    使用异步处理时启用
 	 * queue
@@ -109,9 +108,17 @@ public class ServerAttributeUtil {
 	 * 更新/添加账号
 	* add by zhao of 2019年7月10日
 	 */
-	public static void update(String username , String passowrd) {
+	public static void updateUser(String username , String passowrd) {
 		lazyUser.remove(username);
 		lazyUser.put(username, DigestUtils.md5Hex(passowrd));
+	}
+	
+	/**
+	 * 删除账号
+	* add by zhao of 2019年7月10日
+	 */
+	public static void deleteUser(String username) {
+		lazyUser.remove(username);
 	}
 	
 	//-------------------------------------  等待队列
@@ -277,6 +284,33 @@ public class ServerAttributeUtil {
 		return discardedQueue.popList(size);
 	}
 	
+	public static List<Map<String, Object>> checkClientIsOnLine(List<Map<String, Object>> clients) {
+		if(CollectionUtils.isEmpty(clients)) {
+			return clients;
+		}
+		for (Map<String, Object> client : clients) {
+			if(lazyRegiestKey.containsKey(client.get("regiestKey").toString()) && lazyRegiestKey.get(client.get("regiestKey").toString()).longValue() == Long.parseLong(client.get("regiestTime").toString())) {
+				client.put("onLine", true);
+			}
+			else {
+				client.put("onLine",false);
+			}
+		}
+		return clients;
+	}
+	
+	/**
+	 * 移除客户端
+	* add by zhao of 2019年7月15日
+	 */
+	public static boolean removeRegiestClient(String regiestKey) {
+		if(lazyRegiestKey.containsKey(regiestKey)) {
+			lazyRegiestKey.remove(regiestKey);
+			return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * 加入注册客户端
 	* add by zhao of 2019年5月30日
@@ -287,7 +321,7 @@ public class ServerAttributeUtil {
 		}
 		
 		synchronized(topicGroupCache) {
-			if(lazyRegiestKey.contains(bean.getRegiestKey())) { //提供界面做已注册服务的主动注销处理 , 心跳监测 被动注销处理
+			if(lazyRegiestKey.contains(bean.getRegiestKey()) && lazyRegiestKey.get(bean.getRegiestKey()).longValue() == bean.getRegiestTime()) { //提供界面做已注册服务的主动注销处理 , 心跳监测 被动注销处理
 				return new ResultContext(-1, "duplicate registration");
 			}
 			for(Entry<String, String> entry :topicGroup.entrySet()) {
@@ -330,7 +364,7 @@ public class ServerAttributeUtil {
 				*/
 			}
 			
-			lazyRegiestKey.add(bean.getRegiestKey());
+			lazyRegiestKey.put(bean.getRegiestKey(), bean.getRegiestTime());
 			for (Map.Entry<String, String> entry : topicGroup.entrySet()) {
 				ConcurrentHashMap<String, List<LazyClientBean>> group = null;
 			  if(topicGroupCache.containsKey(entry.getKey())) {
@@ -382,7 +416,7 @@ public class ServerAttributeUtil {
 		if(StringUtils.isBlank(regiestKey)) {
 			return false;
 		}
- 		if(!lazyRegiestKey.contains(regiestKey)) {
+ 		if(!lazyRegiestKey.containsKey(regiestKey)) {
 			return false;
 		}
 		return true;

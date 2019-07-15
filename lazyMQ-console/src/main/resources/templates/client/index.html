@@ -3,10 +3,10 @@
 <link rel="stylesheet" type="text/css" th:href="@{/js/easyui/themes/icon.css}">
 <link rel="stylesheet" type="text/css" th:href="@{/js/font4.7/css/font-awesome.min.css}">
 <link rel="stylesheet" type="text/css" th:href="@{/js/sys/table.css}">
-<table class="easyui-datagrid" id="user-center" style="width: 100%;height: 100%" 
+<table class="easyui-datagrid" id="client-center" style="width: 100%;height: 100%" 
 	data-options="
 		singleSelect:true,
-		url:'/console/user/list.html',
+		url:'/console/client/list.html',
 		method:'get',
 		loadMsg:'load...',
 		pagination:true,
@@ -19,9 +19,12 @@
 	<thead>
 		<tr>
 			<th data-options="field:'id',checkbox:true">ID</th>
-			<th data-options="field:'username'" width="35%">账号</th>
-			<th data-options="field:'userdesc'" width="45%">备注</th>
-			<th data-options="field:'data_update',formatter:data_update,align:'center'" width="15%">操作</th>
+			<th data-options="field:'username'" width="10%" formatter="data_append">账号(在线标识)</th>
+			<th data-options="field:'host'" width="10%">地址</th>
+			<th data-options="field:'port'" width="5%">端口</th>
+			<th data-options="field:'topicName'" width="25%">申请topic</th>
+			<th data-options="field:'regiestTime'" width="20%" formatter="data_time">注册时间</th>
+			<th data-options="field:'regiestKey'" width="25%">注册生成key</th>
 		</tr>
 	</thead>
 </table>
@@ -32,16 +35,11 @@
 <script type="text/javascript">
 //操作按钮
 var toolbar = [{
-	text:'<i class="fa fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;新增',
-	handler:function(){
-		data_update_func("");
-	}
-},{
 	text:'<i class="fa fa-minus-square" aria-hidden="true"></i>&nbsp;&nbsp;删除',
 	handler:function(){
-		var row = $('#user-center').datagrid('getSelected');
+		var row = $('#client-center').datagrid('getSelected');
 		if (row){
-			parent.showConfig("确认删除账号？" , "/console/user/delete.html" , {"id":row.id} ,tableReold);
+			parent.showConfig("确认将当前注册客户端移除,移除后需要重新注册？" , "/console/client/delete.html" , {"regiestKey":row.regiestKey} ,tableReold);
 		}
 		else {
 			parent.showError("请选择需要删除的数据行");
@@ -49,21 +47,29 @@ var toolbar = [{
 	}
 }
 ];
+function data_append(val , row , index) {
+	if(row.onLine) {
+		return row.username + " <i class=\"fa fa-check-square\" aria-hidden=\"true\"></i>";
+	}
+	else {
+		return row.username;
+	}
+}
 function tableReold() {
-	$('#user-center').datagrid('reload');
+	$('#client-center').datagrid('reload');
 }
 //行操作
 function data_update(val , row , index) {
 	return "<a href=\"javaScript:;\" onclick=\"javaScript:data_update_func('" + row.id + "');\" class=\"easyui-linkbutton update_link_button\" data-options=\"plain:true\"><i class=\"fa fa-dot-circle-o\" aria-hidden=\"true\"></i>&nbsp;&nbsp;修改</a>";
 }
 //数据加载后重新渲染行操作
-function dataLoadSuccess() {
-	$(".update_link_button").linkbutton();
-}
-function data_update_func(id) {
-	self.location.href = "/console/user/update.html?id="+id
-}
+function dataLoadSuccess() {}
+function data_update_func(id) {}
 function data_time(val , row , index) {
+	if(isNaN(val)) {
+		return "";
+	}
+	val = parseInt(val);
 	var date = new Date(val);
 	return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" +date.getSeconds();
 }

@@ -55,7 +55,7 @@ public class UserController {
 			int add = this.sqlUtil.insertRegiestUser(username, password, userdesc);
 			if(add > 0) {
 				if(!StringUtils.isBlank(password)) {
-					ServerAttributeUtil.update(username, password);//更新账号过滤缓存
+					ServerAttributeUtil.updateUser(username, password);//更新账号过滤缓存
 				}
 				return new ResponseContext(1, "处理成功").toJson();
 			}
@@ -67,12 +67,26 @@ public class UserController {
 			int update = this.sqlUtil.updateUser(id, password, userdesc);
 			if(update > 0) {
 				Map<String, Object> user = this.sqlUtil.queryUserById(id);
-				ServerAttributeUtil.update(user.get("username").toString(), password);//更新账号过滤缓存
+				ServerAttributeUtil.updateUser(user.get("username").toString(), password);//更新账号过滤缓存
 				return new ResponseContext(1, "处理成功").toJson();
 			}
 			else {
 				return new ResponseContext(-1, "更新账号失败").toJson();
 			}
 		}
+	}
+	
+	@RequestMapping("/delete.html")
+	@ResponseBody
+	public String delete(@RequestParam(value="id" , defaultValue = "" , required = true)String id) {
+		Map<String, Object> user = this.sqlUtil.queryUserById(id);
+		if(user != null) {
+			int delete = this.sqlUtil.deleteUser(id);
+			if(delete > 0) {
+				ServerAttributeUtil.deleteUser(user.get("username").toString());
+				return new ResponseContext(1, "处理成功").toJson();
+			}
+		}
+		return new ResponseContext(-1, "没有可删除数据").toJson();
 	}
 }

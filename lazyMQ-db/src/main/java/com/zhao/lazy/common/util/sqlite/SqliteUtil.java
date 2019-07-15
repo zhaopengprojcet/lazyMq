@@ -316,6 +316,27 @@ public class SqliteUtil implements SqlUtil{
 	public Map<String, Object> queryUserById(String id) {
 		return readJdbcTemplate.queryForMap(QUERY_REGIEST_USER_NAME, new Object[] {id});
 	}
+
+	private final String DELETE_REGIEST_USER_NAME = "delete from lazy_user where id = ? ";
+	
+	@Override
+	public int deleteUser(String id) {
+		return updateJdbcTemplate.update(DELETE_REGIEST_USER_NAME, new Object[] {id});
+	}
+
+	private final String QUERY_REGIEST_CLIENT_PAGE = "select * from lazy_regiest_client order by regiestTime desc limit ? ,? ";
+	
+	@Override
+	public List<Map<String, Object>> queryReqiestClientPage(int page, int count) {
+		return readJdbcTemplate.queryForList(QUERY_REGIEST_CLIENT_PAGE, new Object[]{(page - 1) * count , count});
+	}
+
+	private final String QUERY_REGIEST_CLIENT_PAGE_COUNT = "select count(*) from lazy_regiest_client ";
+	
+	@Override
+	public int queryReqiestClientPageCount() {
+		return readJdbcTemplate.queryForObject(QUERY_REGIEST_CLIENT_PAGE_COUNT, Integer.class);
+	}
 	
 	
 }

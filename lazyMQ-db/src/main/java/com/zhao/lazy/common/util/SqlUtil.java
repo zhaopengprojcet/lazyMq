@@ -60,18 +60,54 @@ public interface SqlUtil {
 	
 	
 	//---------------------- console服务必须---------------------------
+	/**
+	 * 账号列表数据
+	* add by zhao of 2019年7月15日
+	 */
 	public List<Map<String, Object>> queryReqiestUserPage(int page , int count);
-	
+	/**
+	 * 账号列表总数
+	* add by zhao of 2019年7月15日
+	 */
 	public int queryReqiestUserPageCount();
-	
+	/**
+	 * 根据用户名查询账号
+	* add by zhao of 2019年7月15日
+	 */
 	public int queryUserConutByName(String name);
 	/**
 	 * 新增账号
 	* add by zhao of 2019年6月3日
 	 */
 	public int insertRegiestUser(String username , String pass , String desc);
-	
+	/**
+	 * 更新账号
+	* add by zhao of 2019年7月15日
+	 */
 	public int updateUser(String id ,String pass , String desc);
-	
+	/**
+	 * 根据id查询账号
+	* add by zhao of 2019年7月15日
+	 */
 	public Map<String, Object> queryUserById(String id);
+	/**
+	 * 删除账号
+	* add by zhao of 2019年7月15日
+	 */
+	public int deleteUser(String id);
+	
+	
+	
+	
+	/**
+	 * 注册客户端列表数据
+	* add by zhao of 2019年7月15日
+	 */
+	public List<Map<String, Object>> queryReqiestClientPage(int page , int count);
+	/**
+	 * 注册客户端列表总数
+	* add by zhao of 2019年7月15日
+	 */
+	public int queryReqiestClientPageCount();
+	
 }

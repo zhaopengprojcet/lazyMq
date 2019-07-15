@@ -1,0 +1,38 @@
+body{width: 100%;height: 100%;margin: 0px;padding: 0px; display: block;}
+html{ display: block;}
+input[type='checkbox']{
+    width: 15px;
+    height: 15px;
+    background-color: #fff;
+    -webkit-appearance:none;
+    border: 1px solid #c9c9c9;
+    border-radius: 2px;
+    outline: none;
+}
+.datagrid-cell-check input[type=checkbox]:checked{
+   background: url("/js/sys/tick.png")no-repeat center;
+}
+.datagrid-header-check input{
+	display: none;
+}
+.pagination-page-list {
+    border: 0 !important;
+    width: 70px !important;
+}
+.pagination-info {
+	font-size: 12px !important;
+	font-weight: bold !important;
+	font-family: "Microsoft YaHei" !important;
+}
+.pagination span {
+	font-size: 12px !important;
+	font-weight: bold !important;
+	font-family: "Microsoft YaHei" !important;
+}
+.pagination-num {
+    border: 0 !important;
+    width: 50px !important;
+}
+.datagrid-cell {
+	line-height: 20px !important;
+}

@@ -18,7 +18,6 @@
 			<div class="layui-logo">lazyMQ</div>
 			<ul class="layui-nav layui-layout-left">
 				<li class="layui-nav-item"><a href="https://github.com/zhaopengprojcet/lazyMq/tree/master/lazyMQ-console" target="_blank">github</a></li>
-				<li class="layui-nav-item"><a href="">关于作者</a></li>
 			</ul>
 		</div>
 
@@ -26,7 +25,7 @@
 			<div class="layui-side-scroll">
 				<ul class="layui-nav layui-nav-tree" lay-filter="test">
 					<li class="layui-nav-item" onclick="javaScript:addCenterBodyTab('已注册账号','/console/user/index.html','1');"><a href="javaScript:;"><i class="layui-icon layui-icon-username"></i>&nbsp;&nbsp;已注册账号</a></li>
-					<li class="layui-nav-item" id="client"><a href="javaScript:;"><i class="layui-icon layui-icon-chart-screen"></i>&nbsp;&nbsp;注册客户端</a></li>
+					<li class="layui-nav-item" onclick="javaScript:addCenterBodyTab('已注册客户端','/console/client/index.html','1');"><a href="javaScript:;"><i class="layui-icon layui-icon-chart-screen"></i>&nbsp;&nbsp;注册客户端</a></li>
 					<li class="layui-nav-item" id="wait"><a href="javaScript:;"><i class="layui-icon layui-icon-loading-1"></i>&nbsp;&nbsp;等待队列</a></li>
 					<li class="layui-nav-item" id="retry"><a href="javaScript:;"><i class="layui-icon layui-icon-loading"></i>&nbsp;&nbsp;重试队列</a></li>
 					<li class="layui-nav-item" id="discarded"><a href="javaScript:;"><i class="layui-icon layui-icon-fonts-del"></i>&nbsp;&nbsp;死信队列</a></li>
@@ -35,14 +34,14 @@
 			</div>
 		</div>
 
-		<div class="layui-body" id="layui-body">
+		<div class="layui-body" id="layui-body"  style="overflow: hidden;">
 			<div class="layui-tab" id="center-body" lay-filter="center-body" lay-allowClose="true">
 			  <ul class="layui-tab-title">
 			  	<li class="layui-this">主页</li>
 			  </ul>
 			  <div class="layui-tab-content" id="layui-tab-content" style="overflow: hidden;">
-			  	<div class="layui-tab-item layui-show">
-			  		<iframe frameborder="0" height="100%" width="100%" src="https://github.com/zhaopengprojcet/lazyMq"></iframe>
+			  	<div class="layui-tab-item layui-show" id="layui-index-center">
+			  		<img alt="" src="/js/sys/lazyMQ-p.png" width="100%" height="100%">
 			  	</div>
 			  </div>
 			</div>
@@ -78,8 +77,9 @@
 	function FrameWH() {
         var h = $(window).height()-100;
         $("iframe").css("height",h+"px");
-        $("#center-body").css("height",($("#layui-body").height() - 10) + "px");
-        $("#layui-tab-content").css("height",($("#center-body").height() - 45) + "px");
+        $("#center-body").css("height",$("#layui-body").height() + "px");
+        $("#layui-tab-content").css("height",($("#center-body").height() - 40) + "px");
+        $("#layui-index-center").css("height",($("#center-body").height() - 40) + "px");
     }
 	
 	function showSuccess(msg) {
@@ -89,6 +89,34 @@
 		layui.layer.open({
 		  title: '<span style="color:red">错误提示</span>'
 		  ,content: msg
+		}); 
+	}
+	function showConfig(msg , _url , _data , _func) {
+		layui.layer.open({
+			 title: '<span>操作提示</span>',
+			 btn:['确定','取消'],
+			 content: msg,
+		     yes: function(index, layero){
+			     layui.layer.close(index); 
+		    	 $.ajax({
+		    	        type : "POST",
+		    	        url : _url,
+		    	        data : _data,
+		    	        dataType:"json",
+		    	        success : function(result) {
+		    	            if(result.code == 1) {
+		    	            	parent.showSuccess(result.msg);
+		    				     _func();
+		    	            }
+		    	            else {
+		    	            	parent.showError(result.msg);
+		    	            }
+		    	        },
+		    	        error : function(e){
+		    	            parent.showError("数据提交到服务器失败");
+		    	        }
+		    	    }); 
+		     }
 		}); 
 	}
 </script>
